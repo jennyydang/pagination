@@ -40,7 +40,6 @@
   <h2>1. First page, small total (no ellipsis needed)</h2>
   <nav
     class="pagination"
-    data-pagination
     data-current-page="1"
     data-total-pages="5"
     data-url-pattern="?example1page={page}"
@@ -61,7 +60,6 @@
   <h2>2. First page, 50 total</h2>
   <nav
     class="pagination"
-    data-pagination
     data-current-page="1"
     data-total-pages="50"
     data-url-pattern="?example2page={page}"
@@ -72,7 +70,6 @@
   <h2>3. Page 2 of 50</h2>
   <nav
     class="pagination"
-    data-pagination
     data-current-page="2"
     data-total-pages="50"
     data-url-pattern="?example3page={page}"
@@ -83,7 +80,6 @@
   <h2>4. Page 3 of 50</h2>
   <nav
     class="pagination"
-    data-pagination
     data-current-page="3"
     data-total-pages="50"
     data-url-pattern="?example4page={page}"
@@ -94,7 +90,6 @@
   <h2>5. Page 4 of 50 (left ellipsis merges into page 1)</h2>
   <nav
     class="pagination"
-    data-pagination
     data-current-page="4"
     data-total-pages="50"
     data-url-pattern="?example5page={page}"
@@ -105,7 +100,6 @@
   <h2>6. Page 47 of 50 (right ellipsis merges into last page)</h2>
   <nav
     class="pagination"
-    data-pagination
     data-current-page="47"
     data-total-pages="50"
     data-url-pattern="?example6page={page}"
@@ -123,7 +117,6 @@
   </p>
   <nav
     class="pagination"
-    data-pagination
     data-current-page="1"
     data-total-pages="30"
     data-url-pattern="?ajaxpage={page}"
@@ -132,40 +125,38 @@
   ></nav>
   <div class="demo-log" id="ajax-log" role="status">Showing page 1 of 30.</div>
 
-  <script type="module">
-    import Pagination, { initAll } from './src/js/pagination.js';
+  <script>
+    // pagination.js registers itself onto a shared "Rexus" manager, so a
+    // real host page needs to preload that manager first. Here we stub one
+    // out just for the demo.
+    window.Rexus = window.Rexus || {};
+  </script>
+  <script src="./src/js/pagination.js"></script>
+  <script>
+    // pagination.js runs synchronously above and builds every ".pagination"
+    // instance on the page, exposing them as Rexus.pagination (in DOM order).
+    // Find the AJAX example's instance so we can wire up simulated fetching.
+    var ajaxRoot = document.getElementById('pagination-ajax');
+    var log = document.getElementById('ajax-log');
+    var ajaxPagination = null;
 
-    // The auto-init in pagination.js already builds examples 1–6 and the
-    // AJAX example from their [data-pagination] attributes. We only need to
-    // grab a handle to the AJAX one to wire up simulated fetching.
-    const ajaxRoot = document.getElementById('pagination-ajax');
-    const log = document.getElementById('ajax-log');
+    Rexus.pagination.forEach(function (instance) {
+      if (instance.component === ajaxRoot) ajaxPagination = instance;
+    });
 
-    // pagination.js self-initializes on DOMContentLoaded; grab the instance
-    // it creates by re-reading the element once ready, or just build our own
-    // dedicated instance with auto-init disabled for this one element.
-    document.addEventListener('DOMContentLoaded', () => {
-      // Re-create as an explicitly managed instance so we can call .update().
-      ajaxRoot.innerHTML = '';
-      const ajaxPagination = new Pagination(ajaxRoot, {
-        currentPage: 1,
-        totalPages: 30,
-        urlPattern: '?ajaxpage={page}',
-      });
+    ajaxRoot.addEventListener('pagination:navigate', function (event) {
+      event.preventDefault(); // take over navigation ourselves
+      var page = event.detail.page;
+      var url = event.detail.url;
 
-      ajaxRoot.addEventListener('pagination:navigate', (event) => {
-        event.preventDefault(); // take over navigation ourselves
-        const { page, url } = event.detail;
+      log.textContent = 'Loading page ' + page + '…';
 
-        log.textContent = `Loading page ${page}…`;
-
-        // Simulate an AJAX request.
-        setTimeout(() => {
-          log.textContent = `Showing page ${page} of 30.`;
-          ajaxPagination.update({ currentPage: page });
-          history.pushState({ page }, '', url);
-        }, 300);
-      });
+      // Simulate an AJAX request.
+      setTimeout(function () {
+        log.textContent = 'Showing page ' + page + ' of 30.';
+        ajaxPagination.update({ currentPage: page });
+        history.pushState({ page: page }, '', url);
+      }, 300);
     });
   </script>
 </body>
