@@ -38,6 +38,26 @@
     .demo-mock__btn--ghost { border-color: transparent; }
     .demo-mock__btn--current { background: #0b5fff; border-color: #0b5fff; color: #fff; font-weight: 700; }
     .demo-mock__ellipsis { padding: 0 4px; color: #595959; }
+
+    .demo-results {
+      margin: 0.5rem 0 1rem;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid #e0e0e0;
+    }
+    .demo-results li {
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .demo-results a {
+      display: block;
+      padding: 0.6rem 0.25rem;
+      color: #0b5fff;
+      text-decoration: none;
+    }
+    .demo-results a:hover,
+    .demo-results a:focus-visible {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -129,16 +149,30 @@
     <span class="demo-mock__btn demo-mock__btn--ghost">›</span>
   </div>
 
-  <h2>Live demo</h2>
+  <h2>Live demo — paginating a list of links</h2>
   <p class="hint">
-    This is real, server-renderable markup: the initial page list below is
-    hand-authored (no JavaScript needed for the first paint or for following
-    a page link). <code>pagination.js</code> only wires up the arrows, the
-    mobile "go to page" form, and re-renders the list on interaction. Every
-    navigation also fires a <code>pagination:navigate</code> event you can
-    intercept to fetch content over AJAX instead of letting the browser
-    follow the link.
+    500 results, 10 per page, so 50 pages of <code>c-pagination</code>
+    links control the list below. Both are real, server-renderable markup:
+    page 1's results and page list are hand-authored HTML, not built by
+    JavaScript. Clicking a result link, a page link, an arrow, the mobile
+    input, or an ellipsis jump all fire the same <code>pagination:navigate</code>
+    event, which this page listens for to re-render just the results list
+    (no full page reload) and updates the URL via <code>pushState</code>.
   </p>
+
+  <ol class="demo-results" id="demo-results" aria-label="Search results" start="1">
+    <li><a href="/articles/1">Result 1: an article worth reading</a></li>
+    <li><a href="/articles/2">Result 2: an article worth reading</a></li>
+    <li><a href="/articles/3">Result 3: an article worth reading</a></li>
+    <li><a href="/articles/4">Result 4: an article worth reading</a></li>
+    <li><a href="/articles/5">Result 5: an article worth reading</a></li>
+    <li><a href="/articles/6">Result 6: an article worth reading</a></li>
+    <li><a href="/articles/7">Result 7: an article worth reading</a></li>
+    <li><a href="/articles/8">Result 8: an article worth reading</a></li>
+    <li><a href="/articles/9">Result 9: an article worth reading</a></li>
+    <li><a href="/articles/10">Result 10: an article worth reading</a></li>
+  </ol>
+
   <nav class="c-pagination" data-total-pages="50" aria-label="Pagination">
     <button type="button" class="c-pagination__arrow c-pagination__arrow--prev" aria-label="Previous page" disabled>
       ‹
@@ -194,7 +228,7 @@
 
     <button type="button" class="c-pagination__arrow c-pagination__arrow--next" aria-label="Next page">›</button>
   </nav>
-  <div class="demo-log" id="ajax-log" role="status">Showing page 1 of 50.</div>
+  <div class="demo-log" id="ajax-log" role="status">Showing results 1&ndash;10 of 500.</div>
 
   <script>
     // pagination.js registers itself onto a shared "Rexus" manager, so a
@@ -204,10 +238,34 @@
   </script>
   <script src="./src/js/pagination.js"></script>
   <script>
+    var RESULTS_PER_PAGE = 10;
+    var TOTAL_RESULTS = 500;
+
+    var resultsList = document.getElementById('demo-results');
     var log = document.getElementById('ajax-log');
 
+    // Stand-in for a real API call: builds the same shape of markup a
+    // server would return for this page, entirely client-side.
+    function renderResults(page) {
+      var start = (page - 1) * RESULTS_PER_PAGE + 1;
+      var html = '';
+
+      for (var i = 0; i < RESULTS_PER_PAGE; i++) {
+        var n = start + i;
+        html += '<li><a href="/articles/' + n + '">Result ' + n + ': an article worth reading</a></li>';
+      }
+
+      resultsList.innerHTML = html;
+      resultsList.setAttribute('start', String(start));
+    }
+
     document.querySelector('.c-pagination').addEventListener('pagination:navigate', function (event) {
-      log.textContent = 'Showing page ' + event.detail.page + ' of ' + event.detail.totalPages + '.';
+      var page = event.detail.page;
+      var start = (page - 1) * RESULTS_PER_PAGE + 1;
+      var end = Math.min(page * RESULTS_PER_PAGE, TOTAL_RESULTS);
+
+      renderResults(page);
+      log.textContent = 'Showing results ' + start + '–' + end + ' of ' + TOTAL_RESULTS + '.';
     });
   </script>
 </body>
