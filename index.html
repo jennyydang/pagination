@@ -72,32 +72,24 @@
     }
     .demo-badge--ssr { background: #e6f4ea; color: #146c2e; }
     .demo-badge--ajax { background: #e8f0fe; color: #1a56c4; }
-
-    /* -- Not a real .c-pagination (deliberately excluded from pagination.js's
-       discovery), reusing the same nested BEM classes purely for styling, so
-       this example's links are provably real navigation, not JS-intercepted. */
-    .demo-pagination-ssr {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .demo-pagination-ssr .c-pagination__desktop__list {
-      display: flex; /* always show the list here; this example has no mobile form, since a mobile form needs JS to do anything */
-    }
   </style>
 </head>
 <body>
   <h1>Pagination component</h1>
   <p class="hint">
     The six required layouts below are static illustrations. Further down
-    are two real, fully wired examples: one labeled
-    <span class="demo-badge demo-badge--ssr">SSR</span> that never loads
-    <code>pagination.js</code> at all and navigates via genuine full-page
-    loads, and one labeled <span class="demo-badge demo-badge--ajax">AJAX</span>
-    where the same click/arrow/ellipsis/mobile-input interactions
-    re-render in place with no reload. Try clicking through pages,
-    hovering an ellipsis, or resizing the AJAX example below ~800px to
-    see the compact <code>&lt; 1 / 50 &gt;</code> mobile layout.
+    are two examples, both the exact same <code>c-pagination</code> markup,
+    styling, and <code>pagination.js</code> — the only difference is
+    whether the host page adds extra glue code. One is labeled
+    <span class="demo-badge demo-badge--ssr">SSR</span>: just the
+    component, dropped in with no extra JavaScript, its list/arrows/input
+    all real server-renderable HTML from the first byte. The other is
+    labeled <span class="demo-badge demo-badge--ajax">AJAX</span>: the
+    same component, plus a few lines on the host page listening for its
+    <code>pagination:navigate</code> event to keep a results list in sync
+    without a full reload. Try clicking through pages, hovering an
+    ellipsis, or resizing either example below ~800px to see the compact
+    <code>&lt; 1 / 50 &gt;</code> mobile layout.
   </p>
 
   <h2>Layout reference</h2>
@@ -182,127 +174,73 @@
 
   <h2>Example <span class="demo-badge demo-badge--ssr">SSR</span></h2>
   <p class="hint">
-    6 pages, 3 results each. This instance is deliberately <strong>not</strong>
-    a <code>.c-pagination</code> element, so <code>pagination.js</code> never
-    discovers or touches it — reusing only its nested BEM classes for
-    identical styling. Every page number below is a real
-    <code>&lt;a href="?ssr_page=N"&gt;</code>; clicking one does a genuine
-    full browser navigation, and the markup — which page is "current",
-    which results show, which arrow is disabled — is (re)computed from
-    that URL on load by a tiny separate script, the way a real server
-    template would render it per-request. The prev/next arrows are real
-    <code>&lt;button&gt;</code> elements though, so, like the rest of this
-    component, they need JavaScript to do anything — they're inert here
-    on purpose, and there's no mobile "go to page" form for the same
-    reason. (This static file server has no real backend, so the tiny
-    script below is standing in for one — it only fills in a different
-    page's markup when JS actually runs; the page-1 markup you see on
-    first load is plain, pre-rendered HTML with nothing missing.)
+    The exact same <code>c-pagination</code> markup, CSS, and
+    <code>pagination.js</code> as the AJAX example below — just with no
+    extra host-page JavaScript attached to it at all: no
+    <code>pagination:navigate</code> listener, nothing. View source and
+    you'll see the page list, the current page, and the disabled prev
+    arrow are all plain, real HTML from the first byte — try disabling
+    JavaScript entirely and every page number below still works via a
+    normal full-page navigation to <code>?page=N</code>. With JavaScript
+    on, <code>pagination.js</code> takes over exactly as it does below:
+    clicks push state and re-render in place, no reload.
   </p>
 
-  <ol class="demo-results" id="ssr-results" aria-label="Search results">
-    <li><a href="/ssr-articles/1">SSR result 1: an article worth reading</a></li>
-    <li><a href="/ssr-articles/2">SSR result 2: an article worth reading</a></li>
-    <li><a href="/ssr-articles/3">SSR result 3: an article worth reading</a></li>
-  </ol>
-
-  <div class="demo-pagination-ssr" aria-label="Pagination">
-    <button type="button" class="c-pagination__arrow c-pagination__arrow--prev" id="ssr-prev" aria-label="Previous page" disabled>
+  <nav class="c-pagination" data-total-pages="6" aria-label="Pagination">
+    <button type="button" class="c-pagination__arrow c-pagination__arrow--prev" aria-label="Previous page" disabled>
       ‹
     </button>
 
-    <ul class="c-pagination__desktop__list" id="ssr-list">
+    <ul class="c-pagination__desktop__list">
       <li class="c-pagination__desktop__list__item">
-        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=1" aria-current="page" aria-label="Current page, Page 1">1</a>
+        <a class="c-pagination__desktop__list__item__link" href="?page=1" aria-current="page" aria-label="Current page, Page 1">1</a>
       </li>
       <li class="c-pagination__desktop__list__item">
-        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=2" aria-label="Go to page 2">2</a>
+        <a class="c-pagination__desktop__list__item__link" href="?page=2" aria-label="Go to page 2">2</a>
       </li>
       <li class="c-pagination__desktop__list__item">
-        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=3" aria-label="Go to page 3">3</a>
+        <a class="c-pagination__desktop__list__item__link" href="?page=3" aria-label="Go to page 3">3</a>
       </li>
       <li class="c-pagination__desktop__list__item">
-        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=4" aria-label="Go to page 4">4</a>
+        <a class="c-pagination__desktop__list__item__link" href="?page=4" aria-label="Go to page 4">4</a>
       </li>
       <li class="c-pagination__desktop__list__item">
-        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=5" aria-label="Go to page 5">5</a>
+        <a class="c-pagination__desktop__list__item__link" href="?page=5" aria-label="Go to page 5">5</a>
       </li>
       <li class="c-pagination__desktop__list__item">
-        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=6" aria-label="Go to page 6">6</a>
+        <a class="c-pagination__desktop__list__item__link" href="?page=6" aria-label="Go to page 6">6</a>
       </li>
     </ul>
 
-    <button type="button" class="c-pagination__arrow c-pagination__arrow--next" id="ssr-next" aria-label="Next page">
-      ›
-    </button>
-  </div>
-  <div class="demo-log" id="ssr-log" role="status">Showing results 1&ndash;3 of 18.</div>
+    <form class="c-pagination__mobile__form" aria-label="Go to page" novalidate>
+      <label class="u-visually-hidden" for="pagination-ssr-input">Page number</label>
+      <input
+        type="number"
+        id="pagination-ssr-input"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        min="1"
+        max="6"
+        value="1"
+        autocomplete="off"
+      />
+      <span aria-hidden="true">/</span>
+      <span class="c-pagination__mobile__form__total">6</span>
+    </form>
 
-  <script>
-    // -- Simulates server-side rendering: reads ?ssr_page= from the URL and
-    // -- paints the matching markup, the way a backend template would per
-    // -- request. Deliberately separate from pagination.js, and never
-    // -- touches anything with the real .c-pagination class.
-    (function () {
-      var TOTAL_PAGES = 6;
-      var RESULTS_PER_PAGE = 3;
-      var TOTAL_RESULTS = TOTAL_PAGES * RESULTS_PER_PAGE;
-
-      var params = new URL(window.location.href).searchParams;
-      var page = parseInt(params.get('ssr_page'), 10);
-      if (isNaN(page) || page < 1) page = 1;
-      if (page > TOTAL_PAGES) page = TOTAL_PAGES;
-
-      var listHtml = '';
-      for (var p = 1; p <= TOTAL_PAGES; p++) {
-        var current = p === page;
-        listHtml +=
-          '<li class="c-pagination__desktop__list__item">' +
-          '<a class="c-pagination__desktop__list__item__link" href="?ssr_page=' +
-          p +
-          '"' +
-          (current ? ' aria-current="page"' : '') +
-          ' aria-label="' +
-          (current ? 'Current page, Page ' + p : 'Go to page ' + p) +
-          '">' +
-          p +
-          '</a></li>';
-      }
-      document.getElementById('ssr-list').innerHTML = listHtml;
-
-      document.getElementById('ssr-prev').disabled = page === 1;
-      document.getElementById('ssr-next').disabled = page === TOTAL_PAGES;
-
-      var start = (page - 1) * RESULTS_PER_PAGE + 1;
-      var resultsHtml = '';
-      for (var i = 0; i < RESULTS_PER_PAGE; i++) {
-        var n = start + i;
-        resultsHtml += '<li><a href="/ssr-articles/' + n + '">SSR result ' + n + ': an article worth reading</a></li>';
-      }
-      document.getElementById('ssr-results').innerHTML = resultsHtml;
-
-      document.getElementById('ssr-log').textContent =
-        'Showing results ' +
-        start +
-        '–' +
-        Math.min(page * RESULTS_PER_PAGE, TOTAL_RESULTS) +
-        ' of ' +
-        TOTAL_RESULTS +
-        '. (page ' +
-        page +
-        ' — rendered from the URL before pagination.js even runs)';
-    })();
-  </script>
+    <button type="button" class="c-pagination__arrow c-pagination__arrow--next" aria-label="Next page">›</button>
+  </nav>
 
   <h2>Example <span class="demo-badge demo-badge--ajax">AJAX</span></h2>
   <p class="hint">
-    500 results, 10 per page, so 50 pages of <code>c-pagination</code>
-    links control the list below. Both are real, server-renderable markup:
-    page 1's results and page list are hand-authored HTML, not built by
-    JavaScript. Clicking a result link, a page link, an arrow, the mobile
-    input, or an ellipsis jump all fire the same <code>pagination:navigate</code>
-    event, which this page listens for to re-render just the results list
-    (no full page reload) and updates the URL via <code>pushState</code>.
+    The same <code>c-pagination</code> component as the SSR example above
+    (500 results, 10 per page, so 50 pages), except this page adds one
+    thing: a listener on <code>pagination:navigate</code>. Clicking a page
+    link, an arrow, the mobile input, or an ellipsis jump all fire that
+    same event regardless; here it's used to re-render the results list
+    below to match (no full page reload) while <code>pagination.js</code>
+    itself still owns pushing the URL via <code>pushState</code> and
+    re-rendering its own page list, exactly as it does in the SSR example.
   </p>
 
   <ol class="demo-results" id="demo-results" aria-label="Search results" start="1">
@@ -318,7 +256,7 @@
     <li><a href="/articles/10">Result 10: an article worth reading</a></li>
   </ol>
 
-  <nav class="c-pagination" data-total-pages="50" aria-label="Pagination">
+  <nav class="c-pagination" data-total-pages="50" data-demo="ajax" aria-label="Pagination">
     <button type="button" class="c-pagination__arrow c-pagination__arrow--prev" aria-label="Previous page" disabled>
       ‹
     </button>
@@ -404,7 +342,7 @@
       resultsList.setAttribute('start', String(start));
     }
 
-    document.querySelector('.c-pagination').addEventListener('pagination:navigate', function (event) {
+    document.querySelector('[data-demo="ajax"]').addEventListener('pagination:navigate', function (event) {
       var page = event.detail.page;
       var start = (page - 1) * RESULTS_PER_PAGE + 1;
       var end = Math.min(page * RESULTS_PER_PAGE, TOTAL_RESULTS);
