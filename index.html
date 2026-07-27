@@ -58,15 +58,46 @@
     .demo-results a:focus-visible {
       text-decoration: underline;
     }
+
+    .demo-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .demo-badge--ssr { background: #e6f4ea; color: #146c2e; }
+    .demo-badge--ajax { background: #e8f0fe; color: #1a56c4; }
+
+    /* -- Not a real .c-pagination (deliberately excluded from pagination.js's
+       discovery), reusing the same nested BEM classes purely for styling, so
+       this example's links are provably real navigation, not JS-intercepted. */
+    .demo-pagination-ssr {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .demo-pagination-ssr .c-pagination__desktop__list {
+      display: flex; /* always show the list here; this example has no mobile form, since a mobile form needs JS to do anything */
+    }
   </style>
 </head>
 <body>
   <h1>Pagination component</h1>
   <p class="hint">
-    The six required layouts below are static illustrations. The live demo
-    further down is the real, fully wired component — try clicking through
-    pages, hovering an ellipsis, or resizing the window below ~800px to see
-    the compact <code>&lt; 1 / 50 &gt;</code> mobile layout.
+    The six required layouts below are static illustrations. Further down
+    are two real, fully wired examples: one labeled
+    <span class="demo-badge demo-badge--ssr">SSR</span> that never loads
+    <code>pagination.js</code> at all and navigates via genuine full-page
+    loads, and one labeled <span class="demo-badge demo-badge--ajax">AJAX</span>
+    where the same click/arrow/ellipsis/mobile-input interactions
+    re-render in place with no reload. Try clicking through pages,
+    hovering an ellipsis, or resizing the AJAX example below ~800px to
+    see the compact <code>&lt; 1 / 50 &gt;</code> mobile layout.
   </p>
 
   <h2>Layout reference</h2>
@@ -149,7 +180,121 @@
     <span class="demo-mock__btn demo-mock__btn--ghost">›</span>
   </div>
 
-  <h2>Live demo — paginating a list of links</h2>
+  <h2>Example <span class="demo-badge demo-badge--ssr">SSR</span></h2>
+  <p class="hint">
+    6 pages, 3 results each. This instance is deliberately <strong>not</strong>
+    a <code>.c-pagination</code> element, so <code>pagination.js</code> never
+    discovers or touches it — reusing only its nested BEM classes for
+    identical styling. Every page number below is a real
+    <code>&lt;a href="?ssr_page=N"&gt;</code>; clicking one does a genuine
+    full browser navigation, and the markup — which page is "current",
+    which results show, which arrow is disabled — is (re)computed from
+    that URL on load by a tiny separate script, the way a real server
+    template would render it per-request. The prev/next arrows are real
+    <code>&lt;button&gt;</code> elements though, so, like the rest of this
+    component, they need JavaScript to do anything — they're inert here
+    on purpose, and there's no mobile "go to page" form for the same
+    reason. (This static file server has no real backend, so the tiny
+    script below is standing in for one — it only fills in a different
+    page's markup when JS actually runs; the page-1 markup you see on
+    first load is plain, pre-rendered HTML with nothing missing.)
+  </p>
+
+  <ol class="demo-results" id="ssr-results" aria-label="Search results">
+    <li><a href="/ssr-articles/1">SSR result 1: an article worth reading</a></li>
+    <li><a href="/ssr-articles/2">SSR result 2: an article worth reading</a></li>
+    <li><a href="/ssr-articles/3">SSR result 3: an article worth reading</a></li>
+  </ol>
+
+  <div class="demo-pagination-ssr" aria-label="Pagination">
+    <button type="button" class="c-pagination__arrow c-pagination__arrow--prev" id="ssr-prev" aria-label="Previous page" disabled>
+      ‹
+    </button>
+
+    <ul class="c-pagination__desktop__list" id="ssr-list">
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=1" aria-current="page" aria-label="Current page, Page 1">1</a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=2" aria-label="Go to page 2">2</a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=3" aria-label="Go to page 3">3</a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=4" aria-label="Go to page 4">4</a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=5" aria-label="Go to page 5">5</a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?ssr_page=6" aria-label="Go to page 6">6</a>
+      </li>
+    </ul>
+
+    <button type="button" class="c-pagination__arrow c-pagination__arrow--next" id="ssr-next" aria-label="Next page">
+      ›
+    </button>
+  </div>
+  <div class="demo-log" id="ssr-log" role="status">Showing results 1&ndash;3 of 18.</div>
+
+  <script>
+    // -- Simulates server-side rendering: reads ?ssr_page= from the URL and
+    // -- paints the matching markup, the way a backend template would per
+    // -- request. Deliberately separate from pagination.js, and never
+    // -- touches anything with the real .c-pagination class.
+    (function () {
+      var TOTAL_PAGES = 6;
+      var RESULTS_PER_PAGE = 3;
+      var TOTAL_RESULTS = TOTAL_PAGES * RESULTS_PER_PAGE;
+
+      var params = new URL(window.location.href).searchParams;
+      var page = parseInt(params.get('ssr_page'), 10);
+      if (isNaN(page) || page < 1) page = 1;
+      if (page > TOTAL_PAGES) page = TOTAL_PAGES;
+
+      var listHtml = '';
+      for (var p = 1; p <= TOTAL_PAGES; p++) {
+        var current = p === page;
+        listHtml +=
+          '<li class="c-pagination__desktop__list__item">' +
+          '<a class="c-pagination__desktop__list__item__link" href="?ssr_page=' +
+          p +
+          '"' +
+          (current ? ' aria-current="page"' : '') +
+          ' aria-label="' +
+          (current ? 'Current page, Page ' + p : 'Go to page ' + p) +
+          '">' +
+          p +
+          '</a></li>';
+      }
+      document.getElementById('ssr-list').innerHTML = listHtml;
+
+      document.getElementById('ssr-prev').disabled = page === 1;
+      document.getElementById('ssr-next').disabled = page === TOTAL_PAGES;
+
+      var start = (page - 1) * RESULTS_PER_PAGE + 1;
+      var resultsHtml = '';
+      for (var i = 0; i < RESULTS_PER_PAGE; i++) {
+        var n = start + i;
+        resultsHtml += '<li><a href="/ssr-articles/' + n + '">SSR result ' + n + ': an article worth reading</a></li>';
+      }
+      document.getElementById('ssr-results').innerHTML = resultsHtml;
+
+      document.getElementById('ssr-log').textContent =
+        'Showing results ' +
+        start +
+        '–' +
+        Math.min(page * RESULTS_PER_PAGE, TOTAL_RESULTS) +
+        ' of ' +
+        TOTAL_RESULTS +
+        '. (page ' +
+        page +
+        ' — rendered from the URL before pagination.js even runs)';
+    })();
+  </script>
+
+  <h2>Example <span class="demo-badge demo-badge--ajax">AJAX</span></h2>
   <p class="hint">
     500 results, 10 per page, so 50 pages of <code>c-pagination</code>
     links control the list below. Both are real, server-renderable markup:
