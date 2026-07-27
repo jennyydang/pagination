@@ -186,7 +186,7 @@
     clicks push state and re-render in place, no reload.
   </p>
 
-  <nav class="c-pagination" data-total-pages="6" aria-label="Pagination">
+  <nav class="c-pagination" data-total-pages="50" aria-label="Pagination">
     <button type="button" class="c-pagination__arrow c-pagination__arrow--prev" aria-label="Previous page" disabled>
       ‹
     </button>
@@ -208,7 +208,18 @@
         <a class="c-pagination__desktop__list__item__link" href="?page=5" aria-label="Go to page 5">5</a>
       </li>
       <li class="c-pagination__desktop__list__item">
-        <a class="c-pagination__desktop__list__item__link" href="?page=6" aria-label="Go to page 6">6</a>
+        <a class="c-pagination__desktop__list__item__ellipsis" href="?page=6" data-ellipsis="next" aria-label="Jump forward 5 pages">
+          <span>&hellip;</span>
+          <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transform: rotate(180deg);">
+            <path
+              d="m16.96 16.948 6.198 6.126c.52.513 1.355.513 1.874 0l.016-.015a1.323 1.323 0 0 0 0-1.883L19.81 16l5.238-5.176a1.323 1.323 0 0 0 0-1.883l-.016-.015a1.333 1.333 0 0 0-1.874 0l-6.199 6.126a1.333 1.333 0 0 0 0 1.896Zm-10 0 6.198 6.126c.52.513 1.355.513 1.874 0l.016-.015a1.323 1.323 0 0 0 0-1.883L9.81 16l5.238-5.176a1.323 1.323 0 0 0 0-1.883l-.016-.015a1.333 1.333 0 0 0-1.874 0L6.96 15.052a1.333 1.333 0 0 0 0 1.896Z"
+              fill-rule="evenodd"
+            ></path>
+          </svg>
+        </a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?page=50" aria-label="Go to page 50">50</a>
       </li>
     </ul>
 
@@ -220,12 +231,12 @@
         inputmode="numeric"
         pattern="[0-9]*"
         min="1"
-        max="6"
+        max="50"
         value="1"
         autocomplete="off"
       />
       <span aria-hidden="true">/</span>
-      <span class="c-pagination__mobile__form__total">6</span>
+      <span class="c-pagination__mobile__form__total">50</span>
     </form>
 
     <button type="button" class="c-pagination__arrow c-pagination__arrow--next" aria-label="Next page">›</button>
