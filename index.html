@@ -44,7 +44,7 @@
     data-total-pages="5"
     data-url-pattern="?example1page={page}"
     aria-label="Pagination, example 1"
-    id="pagination-1"
+    data-example="1"
   >
     <noscript>
       <ul class="pagination__list">
@@ -64,7 +64,7 @@
     data-total-pages="50"
     data-url-pattern="?example2page={page}"
     aria-label="Pagination, example 2"
-    id="pagination-2"
+    data-example="2"
   ></nav>
 
   <h2>3. Page 2 of 50</h2>
@@ -74,7 +74,7 @@
     data-total-pages="50"
     data-url-pattern="?example3page={page}"
     aria-label="Pagination, example 3"
-    id="pagination-3"
+    data-example="3"
   ></nav>
 
   <h2>4. Page 3 of 50</h2>
@@ -84,7 +84,7 @@
     data-total-pages="50"
     data-url-pattern="?example4page={page}"
     aria-label="Pagination, example 4"
-    id="pagination-4"
+    data-example="4"
   ></nav>
 
   <h2>5. Page 4 of 50 (left ellipsis merges into page 1)</h2>
@@ -94,7 +94,7 @@
     data-total-pages="50"
     data-url-pattern="?example5page={page}"
     aria-label="Pagination, example 5"
-    id="pagination-5"
+    data-example="5"
   ></nav>
 
   <h2>6. Page 47 of 50 (right ellipsis merges into last page)</h2>
@@ -104,7 +104,7 @@
     data-total-pages="50"
     data-url-pattern="?example6page={page}"
     aria-label="Pagination, example 6"
-    id="pagination-6"
+    data-example="6"
   ></nav>
 
   <h2>7. AJAX mode</h2>
@@ -121,28 +121,29 @@
     data-total-pages="30"
     data-url-pattern="?ajaxpage={page}"
     aria-label="Pagination, AJAX example"
-    id="pagination-ajax"
+    data-demo="ajax"
   ></nav>
   <div class="demo-log" id="ajax-log" role="status">Showing page 1 of 30.</div>
 
   <script>
-    // pagination.js registers itself onto a shared "Rexus" manager, so a
-    // real host page needs to preload that manager first. Here we stub one
-    // out just for the demo.
+    // pagination.js registers itself onto a shared "Rexus" manager and uses
+    // Rexus.cuid to generate each component's id, so a real host page needs
+    // to preload both first. Here we stub them out just for the demo.
     window.Rexus = window.Rexus || {};
+    window.Rexus.cuid = window.Rexus.cuid || {
+      generate: function (prefix) {
+        return (prefix || 'id') + '-' + Math.random().toString(36).slice(2, 10);
+      },
+    };
   </script>
   <script src="./src/js/pagination.js"></script>
   <script>
-    // pagination.js runs synchronously above and builds every ".pagination"
-    // instance on the page, exposing them as Rexus.pagination (in DOM order).
-    // Find the AJAX example's instance so we can wire up simulated fetching.
-    var ajaxRoot = document.getElementById('pagination-ajax');
+    // pagination.js runs synchronously above and assigns every ".pagination"
+    // element a fresh id, so grab the AJAX example by a plain data attribute
+    // instead. Rexus.pagination.update()/.destroy() both accept either an
+    // element or an id string.
+    var ajaxRoot = document.querySelector('[data-demo="ajax"]');
     var log = document.getElementById('ajax-log');
-    var ajaxPagination = null;
-
-    Rexus.pagination.forEach(function (instance) {
-      if (instance.component === ajaxRoot) ajaxPagination = instance;
-    });
 
     ajaxRoot.addEventListener('pagination:navigate', function (event) {
       event.preventDefault(); // take over navigation ourselves
@@ -154,7 +155,7 @@
       // Simulate an AJAX request.
       setTimeout(function () {
         log.textContent = 'Showing page ' + page + ' of 30.';
-        ajaxPagination.update({ currentPage: page });
+        Rexus.pagination.update(ajaxRoot, { currentPage: page });
         history.pushState({ page: page }, '', url);
       }, 300);
     });
