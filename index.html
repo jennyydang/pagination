@@ -80,16 +80,21 @@
     The six required layouts below are static illustrations. Further down
     are two examples, both the exact same <code>c-pagination</code> markup,
     styling, and <code>pagination.js</code> — the only difference is
-    whether the host page adds extra glue code. One is labeled
-    <span class="demo-badge demo-badge--ssr">SSR</span>: just the
-    component, dropped in with no extra JavaScript, its list/arrows/input
-    all real server-renderable HTML from the first byte. The other is
-    labeled <span class="demo-badge demo-badge--ajax">AJAX</span>: the
-    same component, plus a few lines on the host page listening for its
-    <code>pagination:navigate</code> event to keep a results list in sync
-    without a full reload. Try clicking through pages, hovering an
-    ellipsis, or resizing either example below ~800px to see the compact
-    <code>&lt; 1 / 50 &gt;</code> mobile layout.
+    whether the host page adds extra glue code. Clicking a page number
+    always fires a cancelable <code>pagination:navigate</code> event; if
+    nothing calls <code>preventDefault()</code> on it, the anchor just
+    follows its <code>href</code> like any other link. One example is
+    labeled <span class="demo-badge demo-badge--ssr">SSR</span>: no
+    listener at all, so every page click is a genuine full-page
+    navigation and the markup is real server-renderable HTML from the
+    first byte. The other is labeled
+    <span class="demo-badge demo-badge--ajax">AJAX</span>: the same
+    component, plus a listener that calls <code>preventDefault()</code>
+    to keep a results list in sync without a reload. Arrows and the
+    mobile input have no href to fall back on, so they always navigate
+    via JavaScript in both examples. Try clicking through pages, hovering
+    an ellipsis, or resizing either example below ~800px to see the
+    compact <code>&lt; 1 / 50 &gt;</code> mobile layout.
   </p>
 
   <h2>Layout reference</h2>
@@ -179,11 +184,13 @@
     extra host-page JavaScript attached to it at all: no
     <code>pagination:navigate</code> listener, nothing. View source and
     you'll see the page list, the current page, and the disabled prev
-    arrow are all plain, real HTML from the first byte — try disabling
-    JavaScript entirely and every page number below still works via a
-    normal full-page navigation to <code>?page=N</code>. With JavaScript
-    on, <code>pagination.js</code> takes over exactly as it does below:
-    clicks push state and re-render in place, no reload.
+    arrow are all plain, real HTML from the first byte. With nothing
+    listening for <code>pagination:navigate</code>, clicking a page
+    number does the anchor's default thing — a genuine full-page
+    navigation to <code>?page=N</code> — whether or not JavaScript is
+    running (try disabling it entirely; every page link still works).
+    The prev/next arrows and mobile input still need JavaScript, since
+    they have no <code>href</code> of their own to fall back on.
   </p>
 
   <nav class="c-pagination" data-total-pages="50" aria-label="Pagination">
@@ -246,12 +253,14 @@
   <p class="hint">
     The same <code>c-pagination</code> component as the SSR example above
     (500 results, 10 per page, so 50 pages), except this page adds one
-    thing: a listener on <code>pagination:navigate</code>. Clicking a page
-    link, an arrow, the mobile input, or an ellipsis jump all fire that
-    same event regardless; here it's used to re-render the results list
-    below to match (no full page reload) while <code>pagination.js</code>
-    itself still owns pushing the URL via <code>pushState</code> and
-    re-rendering its own page list, exactly as it does in the SSR example.
+    thing: a listener on <code>pagination:navigate</code> that calls
+    <code>event.preventDefault()</code>. Arrows and the mobile input
+    already navigate via JavaScript either way (no href to fall back
+    on), but that one call is what stops page-link and ellipsis clicks
+    from doing their default full-page navigation — <code>pagination.js</code>
+    then pushes the URL and re-renders its own page list itself, and this
+    page also re-renders the results list below to match, all with no
+    reload.
   </p>
 
   <ol class="demo-results" id="demo-results" aria-label="Search results" start="1">
@@ -354,6 +363,7 @@
     }
 
     document.querySelector('[data-demo="ajax"]').addEventListener('pagination:navigate', function (event) {
+      event.preventDefault(); // opt in to handling this navigation ourselves instead of a real page load
       var page = event.detail.page;
       var start = (page - 1) * RESULTS_PER_PAGE + 1;
       var end = Math.min(page * RESULTS_PER_PAGE, TOTAL_RESULTS);

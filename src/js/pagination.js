@@ -116,15 +116,29 @@
       return;
     }
 
-    // LINKS
-    e.preventDefault();
-
+    // LINKS - real anchors, so let the browser follow the href by default
+    // (a genuine navigation). Only if a pagination:navigate listener calls
+    // preventDefault() on the dispatched event do we take over ourselves.
     let href = trigger.getAttribute("href");
     let url = new URL(href, window.location.origin);
     let page = parseInt(url.searchParams.get("page"), 10);
 
-    if (!isNaN(page)) {
-      goToPage(component, page);
+    if (isNaN(page)) return;
+
+    let totalPages = getTotalPages(component);
+    if (page < 1) page = 1;
+    if (page > totalPages) page = totalPages;
+
+    let navigateEvent = new CustomEvent("pagination:navigate", {
+      bubbles: true,
+      cancelable: true,
+      detail: { page: page, totalPages: totalPages, url: url.toString() },
+    });
+    let shouldFollowDefault = component.dispatchEvent(navigateEvent);
+
+    if (!shouldFollowDefault) {
+      e.preventDefault();
+      applyNavigation(component, page, url);
     }
   }
 
@@ -146,13 +160,21 @@
     }
   }
 
+  // -- applies a page change to the DOM/URL; used directly by the arrows and
+  // -- mobile form (which have no href of their own to fall back on, so they
+  // -- always self-handle), and by handleClick's LINKS branch when a
+  // -- pagination:navigate listener has opted in to intercepting the click.
+  function applyNavigation(component, page, url) {
+    setActivePage(component.id, page);
+    window.history.pushState({}, "", url);
+    render(component);
+  }
+
   function goToPage(component, page) {
     let totalPages = getTotalPages(component);
 
     if (page < 1) page = 1;
     if (page > totalPages) page = totalPages;
-
-    setActivePage(component.id, page);
 
     // UPDATE URL
     // ?page=#
@@ -161,15 +183,14 @@
 
     url.searchParams.set("page", page);
 
-    window.history.pushState({}, "", url);
-
-    render(component);
+    applyNavigation(component, page, url);
 
     // -- let the host page know the page changed, so it can fetch new
     // -- content itself instead of a full reload (AJAX-style navigation)
     component.dispatchEvent(
       new CustomEvent("pagination:navigate", {
         bubbles: true,
+        cancelable: true,
         detail: { page: page, totalPages: totalPages, url: url.toString() },
       }),
     );
