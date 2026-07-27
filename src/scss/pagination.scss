@@ -248,7 +248,9 @@ $pagination-target-size-desktop: 40px !default;
 // ---- Breakpoint: swap compact layout for the full desktop layout --------
 @media (min-width: $pagination-breakpoint) {
   .pagination__desktop {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: $pagination-gap;
   }
 
   .pagination__mobile {

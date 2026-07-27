@@ -178,7 +178,9 @@
 
 @media (min-width: 640px) {
   .pagination__desktop {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
   .pagination__mobile {
     display: none;

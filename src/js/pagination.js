@@ -163,6 +163,7 @@ export default class Pagination {
   }
 
   // Desktop: < [1] 2 3 4 5 … 50 >
+  // Prev/next live outside the <ul> — the list contains page items only.
   _renderDesktop() {
     const nav = document.createElement('div');
     nav.className = 'pagination__desktop';
@@ -171,21 +172,21 @@ export default class Pagination {
     list.className = 'pagination__list';
 
     list.append(
-      this._buildArrowItem('prev', 'Previous page', '‹', this.currentPage <= 1),
       ...getPageRange(this.currentPage, this.totalPages, this.siblingCount).map((item) =>
         item.type === 'page' ? this._buildPageItem(item.page) : this._buildEllipsisItem(item.direction)
-      ),
-      this._buildArrowItem('next', 'Next page', '›', this.currentPage >= this.totalPages)
+      )
     );
 
-    nav.append(list);
+    nav.append(
+      this._buildArrowButton('prev', 'Previous page', '‹', this.currentPage <= 1),
+      list,
+      this._buildArrowButton('next', 'Next page', '›', this.currentPage >= this.totalPages)
+    );
+
     return nav;
   }
 
-  _buildArrowItem(action, label, glyph, disabled) {
-    const li = document.createElement('li');
-    li.className = 'pagination__item';
-
+  _buildArrowButton(action, label, glyph, disabled) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `pagination__arrow pagination__arrow--${action}`;
@@ -202,8 +203,7 @@ export default class Pagination {
     icon.textContent = glyph;
     button.append(icon);
 
-    li.append(button);
-    return li;
+    return button;
   }
 
   _buildPageItem(page) {
@@ -270,8 +270,8 @@ export default class Pagination {
     const wrap = document.createElement('div');
     wrap.className = 'pagination__mobile';
 
-    const prev = this._buildArrowItem('prev', 'Previous page', '‹', this.currentPage <= 1).firstElementChild;
-    const next = this._buildArrowItem('next', 'Next page', '›', this.currentPage >= this.totalPages).firstElementChild;
+    const prev = this._buildArrowButton('prev', 'Previous page', '‹', this.currentPage <= 1);
+    const next = this._buildArrowButton('next', 'Next page', '›', this.currentPage >= this.totalPages);
 
     const form = document.createElement('form');
     form.className = 'pagination__goto';
