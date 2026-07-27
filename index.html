@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pagination — WCAG 2.2 AA demo</title>
+  <link rel="stylesheet" href="dist/pagination.css" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      max-width: 40rem;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+      color: #1a1a1a;
+    }
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.125rem; margin-top: 2.5rem; }
+    section { margin-bottom: 1.5rem; }
+    p.hint { color: #595959; font-size: 0.9rem; }
+    .demo-log {
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: #f2f2f2;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      min-height: 1.5em;
+    }
+    code { background: #f2f2f2; padding: 0.1em 0.35em; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Pagination component</h1>
+  <p class="hint">
+    Resize the window (or open dev tools' device toolbar) to see the compact
+    <code>&lt; 1 / 50 &gt;</code> mobile layout below ~640px. Hover or focus an
+    ellipsis to see it swap to a jump control. Each example is a fully
+    independent, self-initializing instance.
+  </p>
+
+  <h2>1. First page, small total (no ellipsis needed)</h2>
+  <nav
+    class="pagination"
+    data-pagination
+    data-current-page="1"
+    data-total-pages="5"
+    data-url-pattern="?example1page={page}"
+    aria-label="Pagination, example 1"
+    id="pagination-1"
+  >
+    <noscript>
+      <ul class="pagination__list">
+        <li class="pagination__item"><a class="pagination__link" href="?example1page=1" aria-current="page">1</a></li>
+        <li class="pagination__item"><a class="pagination__link" href="?example1page=2">2</a></li>
+        <li class="pagination__item"><a class="pagination__link" href="?example1page=3">3</a></li>
+        <li class="pagination__item"><a class="pagination__link" href="?example1page=4">4</a></li>
+        <li class="pagination__item"><a class="pagination__link" href="?example1page=5">5</a></li>
+      </ul>
+    </noscript>
+  </nav>
+
+  <h2>2. First page, 50 total</h2>
+  <nav
+    class="pagination"
+    data-pagination
+    data-current-page="1"
+    data-total-pages="50"
+    data-url-pattern="?example2page={page}"
+    aria-label="Pagination, example 2"
+    id="pagination-2"
+  ></nav>
+
+  <h2>3. Page 2 of 50</h2>
+  <nav
+    class="pagination"
+    data-pagination
+    data-current-page="2"
+    data-total-pages="50"
+    data-url-pattern="?example3page={page}"
+    aria-label="Pagination, example 3"
+    id="pagination-3"
+  ></nav>
+
+  <h2>4. Page 3 of 50</h2>
+  <nav
+    class="pagination"
+    data-pagination
+    data-current-page="3"
+    data-total-pages="50"
+    data-url-pattern="?example4page={page}"
+    aria-label="Pagination, example 4"
+    id="pagination-4"
+  ></nav>
+
+  <h2>5. Page 4 of 50 (left ellipsis merges into page 1)</h2>
+  <nav
+    class="pagination"
+    data-pagination
+    data-current-page="4"
+    data-total-pages="50"
+    data-url-pattern="?example5page={page}"
+    aria-label="Pagination, example 5"
+    id="pagination-5"
+  ></nav>
+
+  <h2>6. Page 47 of 50 (right ellipsis merges into last page)</h2>
+  <nav
+    class="pagination"
+    data-pagination
+    data-current-page="47"
+    data-total-pages="50"
+    data-url-pattern="?example6page={page}"
+    aria-label="Pagination, example 6"
+    id="pagination-6"
+  ></nav>
+
+  <h2>7. AJAX mode</h2>
+  <p class="hint">
+    This instance intercepts navigation instead of doing a full page load: it
+    calls <code>event.preventDefault()</code> on <code>pagination:navigate</code>,
+    "fetches" (simulated) new content, then calls
+    <code>pagination.update(...)</code> to re-render in place and pushes a new
+    URL with <code>history.pushState</code>.
+  </p>
+  <nav
+    class="pagination"
+    data-pagination
+    data-current-page="1"
+    data-total-pages="30"
+    data-url-pattern="?ajaxpage={page}"
+    aria-label="Pagination, AJAX example"
+    id="pagination-ajax"
+  ></nav>
+  <div class="demo-log" id="ajax-log" role="status">Showing page 1 of 30.</div>
+
+  <script type="module">
+    import Pagination, { initAll } from './src/js/pagination.js';
+
+    // The auto-init in pagination.js already builds examples 1–6 and the
+    // AJAX example from their [data-pagination] attributes. We only need to
+    // grab a handle to the AJAX one to wire up simulated fetching.
+    const ajaxRoot = document.getElementById('pagination-ajax');
+    const log = document.getElementById('ajax-log');
+
+    // pagination.js self-initializes on DOMContentLoaded; grab the instance
+    // it creates by re-reading the element once ready, or just build our own
+    // dedicated instance with auto-init disabled for this one element.
+    document.addEventListener('DOMContentLoaded', () => {
+      // Re-create as an explicitly managed instance so we can call .update().
+      ajaxRoot.innerHTML = '';
+      const ajaxPagination = new Pagination(ajaxRoot, {
+        currentPage: 1,
+        totalPages: 30,
+        urlPattern: '?ajaxpage={page}',
+      });
+
+      ajaxRoot.addEventListener('pagination:navigate', (event) => {
+        event.preventDefault(); // take over navigation ourselves
+        const { page, url } = event.detail;
+
+        log.textContent = `Loading page ${page}…`;
+
+        // Simulate an AJAX request.
+        setTimeout(() => {
+          log.textContent = `Showing page ${page} of 30.`;
+          ajaxPagination.update({ currentPage: page });
+          history.pushState({ page }, '', url);
+        }, 300);
+      });
+    });
+  </script>
+</body>
+</html>

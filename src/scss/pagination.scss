@@ -1,0 +1,273 @@
+// ==========================================================================
+// Pagination — WCAG 2.2 AA
+// BEM: .pagination, .pagination__list, .pagination__item, .pagination__link …
+// Mobile-first. Desktop layout (< [1] 2 3 4 5 … 50 >) takes over at
+// $pagination-breakpoint; below it the compact (< 1 / 50 >) layout shows.
+// ==========================================================================
+
+// ---- Tokens --------------------------------------------------------------
+$pagination-breakpoint: 640px !default;
+
+$pagination-color-text: #1a1a1a !default;
+$pagination-color-muted: #595959 !default; // 4.5:1+ on white
+$pagination-color-border: #6b6b6b !default; // 3:1+ non-text contrast
+$pagination-color-bg: #ffffff !default;
+$pagination-color-bg-hover: #f2f2f2 !default;
+$pagination-color-accent: #0b5fff !default; // current-page / primary
+$pagination-color-accent-contrast: #ffffff !default;
+$pagination-color-focus: #0b5fff !default;
+$pagination-color-disabled-text: #9a9a9a !default;
+$pagination-color-disabled-border: #cfcfcf !default;
+$pagination-color-error: #c81e2c !default; // 4.5:1+ on white
+
+$pagination-radius: 6px !default;
+$pagination-gap: 4px !default;
+$pagination-font-size: 1rem !default;
+
+// Minimum interactive target size (WCAG 2.2 SC 2.5.8 Target Size).
+$pagination-target-size: 44px !default;
+$pagination-target-size-desktop: 40px !default;
+
+@mixin pagination-focus-ring {
+  outline: 3px solid $pagination-color-focus;
+  outline-offset: 2px;
+}
+
+@mixin pagination-reset-button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  appearance: none;
+}
+
+// ---- Visually hidden utility (screen-reader only content) ---------------
+.u-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// ---- Block -----------------------------------------------------------
+.pagination {
+  display: block;
+  font-size: $pagination-font-size;
+  color: $pagination-color-text;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .pagination__link,
+    .pagination__arrow,
+    .pagination__ellipsis {
+      transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+    }
+  }
+}
+
+// ---- Shared control styling (link / arrow / ellipsis) -------------------
+%pagination-control {
+  @include pagination-reset-button;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: $pagination-target-size-desktop;
+  min-height: $pagination-target-size-desktop;
+  padding: 0 10px;
+  border-radius: $pagination-radius;
+  border-color: transparent;
+  text-decoration: none;
+  color: $pagination-color-text;
+  font-weight: 500;
+  line-height: 1;
+
+  &:hover {
+    background-color: $pagination-color-bg-hover;
+  }
+
+  &:focus-visible {
+    @include pagination-focus-ring;
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+    color: $pagination-color-disabled-text;
+    border-color: $pagination-color-disabled-border;
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+}
+
+// ---- Desktop layout: < [1] 2 3 4 5 … 50 > --------------------------------
+.pagination__desktop {
+  display: none;
+}
+
+.pagination__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $pagination-gap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pagination__item {
+  display: flex;
+}
+
+.pagination__link {
+  @extend %pagination-control;
+  border: 1px solid transparent;
+
+  &--current {
+    background-color: $pagination-color-accent;
+    color: $pagination-color-accent-contrast;
+    font-weight: 700;
+
+    &:hover {
+      background-color: $pagination-color-accent;
+    }
+  }
+}
+
+.pagination__arrow {
+  @extend %pagination-control;
+  border: 1px solid $pagination-color-border;
+}
+
+.pagination__arrow-icon {
+  font-size: 1.25em;
+  line-height: 1;
+}
+
+// Ellipsis: shows "…" by default, swaps to a «/» jump glyph on hover/focus.
+// Both spans are always in the DOM; only the button's aria-label is read by
+// screen readers, so the swap is purely a sighted-user affordance.
+.pagination__ellipsis {
+  @extend %pagination-control;
+  border: 1px solid transparent;
+  letter-spacing: 1px;
+
+  &-arrow {
+    display: none;
+  }
+
+  &:hover,
+  &:focus-visible {
+    .pagination__ellipsis-dots {
+      display: none;
+    }
+
+    .pagination__ellipsis-arrow {
+      display: inline;
+    }
+  }
+}
+
+// ---- Mobile / compact layout: < 1 / 50 > ---------------------------------
+.pagination__mobile {
+  display: flex;
+  align-items: center;
+  gap: $pagination-gap;
+}
+
+.pagination__goto {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 2px;
+}
+
+.pagination__input {
+  width: 3.5ch;
+  min-height: $pagination-target-size;
+  padding: 0 4px;
+  text-align: center;
+  font: inherit;
+  font-weight: 600;
+  color: $pagination-color-text;
+  background-color: $pagination-color-bg;
+  border: 1px solid $pagination-color-border;
+  border-radius: $pagination-radius;
+
+  // Hide native number spinners; page numbers don't benefit from them.
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &:focus-visible {
+    @include pagination-focus-ring;
+  }
+}
+
+.pagination__total {
+  color: $pagination-color-muted;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pagination__error {
+  color: $pagination-color-error;
+  font-size: 0.875rem;
+
+  &:not(:empty) {
+    position: static;
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 4px 0 0;
+    padding: 0;
+    clip: auto;
+    overflow: visible;
+  }
+}
+
+// Mobile arrow buttons reuse .pagination__arrow, just at the mobile target size.
+.pagination__mobile .pagination__arrow {
+  min-width: $pagination-target-size;
+  min-height: $pagination-target-size;
+}
+
+// ---- Breakpoint: swap compact layout for the full desktop layout --------
+@media (min-width: $pagination-breakpoint) {
+  .pagination__desktop {
+    display: block;
+  }
+
+  .pagination__mobile {
+    display: none;
+  }
+}
+
+// ---- High contrast / forced-colors mode ----------------------------------
+@media (forced-colors: active) {
+  .pagination__link,
+  .pagination__arrow,
+  .pagination__ellipsis,
+  .pagination__input {
+    border: 1px solid CanvasText;
+  }
+
+  .pagination__link--current {
+    forced-color-adjust: none;
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}

@@ -1,0 +1,199 @@
+.u-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pagination {
+  display: block;
+  font-size: 1rem;
+  color: #1a1a1a;
+}
+.pagination * {
+  box-sizing: border-box;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pagination .pagination__link,
+  .pagination .pagination__arrow,
+  .pagination .pagination__ellipsis {
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  }
+}
+
+.pagination__ellipsis, .pagination__arrow, .pagination__link {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border-color: transparent;
+  text-decoration: none;
+  color: #1a1a1a;
+  font-weight: 500;
+  line-height: 1;
+}
+.pagination__ellipsis:hover, .pagination__arrow:hover, .pagination__link:hover {
+  background-color: #f2f2f2;
+}
+.pagination__ellipsis:focus-visible, .pagination__arrow:focus-visible, .pagination__link:focus-visible {
+  outline: 3px solid #0b5fff;
+  outline-offset: 2px;
+}
+.pagination__ellipsis:disabled, .pagination__arrow:disabled, .pagination__link:disabled, [aria-disabled=true].pagination__ellipsis, [aria-disabled=true].pagination__arrow, [aria-disabled=true].pagination__link {
+  cursor: not-allowed;
+  color: #9a9a9a;
+  border-color: #cfcfcf;
+}
+.pagination__ellipsis:disabled:hover, .pagination__arrow:disabled:hover, .pagination__link:disabled:hover, [aria-disabled=true].pagination__ellipsis:hover, [aria-disabled=true].pagination__arrow:hover, [aria-disabled=true].pagination__link:hover {
+  background-color: transparent;
+}
+
+.pagination__desktop {
+  display: none;
+}
+
+.pagination__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pagination__item {
+  display: flex;
+}
+
+.pagination__link {
+  border: 1px solid transparent;
+}
+.pagination__link--current {
+  background-color: #0b5fff;
+  color: #ffffff;
+  font-weight: 700;
+}
+.pagination__link--current:hover {
+  background-color: #0b5fff;
+}
+
+.pagination__arrow {
+  border: 1px solid #6b6b6b;
+}
+
+.pagination__arrow-icon {
+  font-size: 1.25em;
+  line-height: 1;
+}
+
+.pagination__ellipsis {
+  border: 1px solid transparent;
+  letter-spacing: 1px;
+}
+.pagination__ellipsis-arrow {
+  display: none;
+}
+.pagination__ellipsis:hover .pagination__ellipsis-dots, .pagination__ellipsis:focus-visible .pagination__ellipsis-dots {
+  display: none;
+}
+.pagination__ellipsis:hover .pagination__ellipsis-arrow, .pagination__ellipsis:focus-visible .pagination__ellipsis-arrow {
+  display: inline;
+}
+
+.pagination__mobile {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination__goto {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 2px;
+}
+
+.pagination__input {
+  width: 3.5ch;
+  min-height: 44px;
+  padding: 0 4px;
+  text-align: center;
+  font: inherit;
+  font-weight: 600;
+  color: #1a1a1a;
+  background-color: #ffffff;
+  border: 1px solid #6b6b6b;
+  border-radius: 6px;
+  -moz-appearance: textfield;
+}
+.pagination__input::-webkit-outer-spin-button, .pagination__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.pagination__input:focus-visible {
+  outline: 3px solid #0b5fff;
+  outline-offset: 2px;
+}
+
+.pagination__total {
+  color: #595959;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pagination__error {
+  color: #c81e2c;
+  font-size: 0.875rem;
+}
+.pagination__error:not(:empty) {
+  position: static;
+  display: block;
+  width: auto;
+  height: auto;
+  margin: 4px 0 0;
+  padding: 0;
+  clip: auto;
+  overflow: visible;
+}
+
+.pagination__mobile .pagination__arrow {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+@media (min-width: 640px) {
+  .pagination__desktop {
+    display: block;
+  }
+  .pagination__mobile {
+    display: none;
+  }
+}
+@media (forced-colors: active) {
+  .pagination__link,
+  .pagination__arrow,
+  .pagination__ellipsis,
+  .pagination__input {
+    border: 1px solid CanvasText;
+  }
+  .pagination__link--current {
+    forced-color-adjust: none;
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
