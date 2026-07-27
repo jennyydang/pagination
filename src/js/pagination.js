@@ -61,11 +61,22 @@
     //look for current page
     let currentLink = component.querySelector('[aria-current="page"]');
     //default page
-    let currentPage = 1;
+    let markupPage = 1;
 
     //if there is a current then change text value to number value
     if (currentLink) {
-      currentPage = parseInt(currentLink.textContent.trim(), 10);
+      markupPage = parseInt(currentLink.textContent.trim(), 10);
+    }
+
+    // -- the URL is the real source of truth for which page is active (a
+    // -- real backend would have already rendered markupPage to match it);
+    // -- fall back to what the markup says if there's no ?page= to read
+    let totalPages = getTotalPages(component);
+    let urlPage = getPageFromUrl();
+    let currentPage = markupPage;
+
+    if (!isNaN(urlPage) && urlPage >= 1 && urlPage <= totalPages) {
+      currentPage = urlPage;
     }
 
     setActivePage(component.id, currentPage);
@@ -79,6 +90,12 @@
     updateMobileMax(component);
     updateArrows(component);
     updateMobileInput(component);
+
+    // -- only re-render if the URL disagreed with the markup - leave a
+    // -- correctly server-rendered page completely untouched by JS
+    if (currentPage !== markupPage) {
+      render(component);
+    }
   }
 
   function handleClick(e) {
@@ -369,6 +386,10 @@
     return 1;
   }
 
+  function getPageFromUrl() {
+    return parseInt(new URL(window.location.href).searchParams.get("page"), 10);
+  }
+
   function getCurrentPage(component) {
     let input = component.getElementsByTagName("input")[0];
 
@@ -389,8 +410,7 @@
   }
 
   function handleBrowser() {
-    let url = new URL(window.location.href);
-    let page = parseInt(url.searchParams.get("page"), 10);
+    let page = getPageFromUrl();
 
     if (isNaN(page)) page = 1;
 
