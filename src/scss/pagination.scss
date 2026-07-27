@@ -1,24 +1,23 @@
 // ==========================================================================
-// Pagination — WCAG 2.2 AA
-// BEM: .pagination, .pagination__list, .pagination__item, .pagination__link …
-// Mobile-first. Desktop layout (< [1] 2 3 4 5 … 50 >) takes over at
-// $pagination-breakpoint; below it the compact (< 1 / 50 >) layout shows.
+// c-pagination — WCAG 2.2 AA
+// BEM: .c-pagination, .c-pagination__desktop__list, .c-pagination__arrow …
+// A single shared pair of prev/next arrows straddles either the desktop
+// page list or the mobile "go to page" form; only the middle content swaps
+// at $pagination-breakpoint (must match the 800px check in pagination.js).
 // ==========================================================================
 
 // ---- Tokens --------------------------------------------------------------
-$pagination-breakpoint: 640px !default;
+$pagination-breakpoint: 800px !default;
 
 $pagination-color-text: #1a1a1a !default;
 $pagination-color-muted: #595959 !default; // 4.5:1+ on white
 $pagination-color-border: #6b6b6b !default; // 3:1+ non-text contrast
-$pagination-color-bg: #ffffff !default;
 $pagination-color-bg-hover: #f2f2f2 !default;
 $pagination-color-accent: #0b5fff !default; // current-page / primary
 $pagination-color-accent-contrast: #ffffff !default;
 $pagination-color-focus: #0b5fff !default;
 $pagination-color-disabled-text: #9a9a9a !default;
 $pagination-color-disabled-border: #cfcfcf !default;
-$pagination-color-error: #c81e2c !default; // 4.5:1+ on white
 
 $pagination-radius: 6px !default;
 $pagination-gap: 4px !default;
@@ -56,8 +55,10 @@ $pagination-target-size-desktop: 40px !default;
 }
 
 // ---- Block -----------------------------------------------------------
-.pagination {
-  display: block;
+.c-pagination {
+  display: flex;
+  align-items: center;
+  gap: $pagination-gap;
   font-size: $pagination-font-size;
   color: $pagination-color-text;
 
@@ -66,15 +67,15 @@ $pagination-target-size-desktop: 40px !default;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .pagination__link,
-    .pagination__arrow,
-    .pagination__ellipsis {
+    .c-pagination__arrow,
+    .c-pagination__desktop__list__item__link,
+    .c-pagination__desktop__list__item__ellipsis {
       transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
     }
   }
 }
 
-// ---- Shared control styling (link / arrow / ellipsis) -------------------
+// ---- Shared control styling (arrow / page link / ellipsis) --------------
 %pagination-control {
   @include pagination-reset-button;
   display: inline-flex;
@@ -97,9 +98,15 @@ $pagination-target-size-desktop: 40px !default;
   &:focus-visible {
     @include pagination-focus-ring;
   }
+}
 
-  &:disabled,
-  &[aria-disabled='true'] {
+// ---- Arrows: shared between the desktop and mobile layouts --------------
+.c-pagination__arrow {
+  @extend %pagination-control;
+  border: 1px solid $pagination-color-border;
+  font-size: 1.25em;
+
+  &:disabled {
     cursor: not-allowed;
     color: $pagination-color-disabled-text;
     border-color: $pagination-color-disabled-border;
@@ -111,12 +118,8 @@ $pagination-target-size-desktop: 40px !default;
 }
 
 // ---- Desktop layout: < [1] 2 3 4 5 … 50 > --------------------------------
-.pagination__desktop {
+.c-pagination__desktop__list {
   display: none;
-}
-
-.pagination__list {
-  display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: $pagination-gap;
@@ -125,15 +128,15 @@ $pagination-target-size-desktop: 40px !default;
   list-style: none;
 }
 
-.pagination__item {
+.c-pagination__desktop__list__item {
   display: flex;
 }
 
-.pagination__link {
+.c-pagination__desktop__list__item__link {
   @extend %pagination-control;
   border: 1px solid transparent;
 
-  &--current {
+  &[aria-current="page"] {
     background-color: $pagination-color-accent;
     color: $pagination-color-accent-contrast;
     font-weight: 700;
@@ -144,55 +147,42 @@ $pagination-target-size-desktop: 40px !default;
   }
 }
 
-.pagination__arrow {
-  @extend %pagination-control;
-  border: 1px solid $pagination-color-border;
-}
-
-.pagination__arrow-icon {
-  font-size: 1.25em;
-  line-height: 1;
-}
-
-// Ellipsis: shows "…" by default, swaps to a «/» jump glyph on hover/focus.
-// Both spans are always in the DOM; only the button's aria-label is read by
+// Ellipsis: shows "…" by default, swaps to the chevron icon on hover/focus.
+// Both children are always in the DOM; only the link's aria-label is read by
 // screen readers, so the swap is purely a sighted-user affordance.
-.pagination__ellipsis {
+.c-pagination__desktop__list__item__ellipsis {
   @extend %pagination-control;
   border: 1px solid transparent;
   letter-spacing: 1px;
 
-  &-arrow {
+  svg {
     display: none;
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
   }
 
   &:hover,
   &:focus-visible {
-    .pagination__ellipsis-dots {
+    span {
       display: none;
     }
 
-    .pagination__ellipsis-arrow {
-      display: inline;
+    svg {
+      display: inline-block;
     }
   }
 }
 
 // ---- Mobile / compact layout: < 1 / 50 > ---------------------------------
-.pagination__mobile {
+.c-pagination__mobile__form {
   display: flex;
   align-items: center;
-  gap: $pagination-gap;
-}
-
-.pagination__goto {
-  display: inline-flex;
-  align-items: center;
   gap: 4px;
-  margin: 0 2px;
+  margin: 0;
 }
 
-.pagination__input {
+.c-pagination__mobile__form input {
   width: 3.5ch;
   min-height: $pagination-target-size;
   padding: 0 4px;
@@ -200,7 +190,7 @@ $pagination-target-size-desktop: 40px !default;
   font: inherit;
   font-weight: 600;
   color: $pagination-color-text;
-  background-color: $pagination-color-bg;
+  background-color: #fff;
   border: 1px solid $pagination-color-border;
   border-radius: $pagination-radius;
 
@@ -217,57 +207,33 @@ $pagination-target-size-desktop: 40px !default;
   }
 }
 
-.pagination__total {
+.c-pagination__mobile__form__total {
   color: $pagination-color-muted;
   font-weight: 500;
   white-space: nowrap;
 }
 
-.pagination__error {
-  color: $pagination-color-error;
-  font-size: 0.875rem;
-
-  &:not(:empty) {
-    position: static;
-    display: block;
-    width: auto;
-    height: auto;
-    margin: 4px 0 0;
-    padding: 0;
-    clip: auto;
-    overflow: visible;
-  }
-}
-
-// Mobile arrow buttons reuse .pagination__arrow, just at the mobile target size.
-.pagination__mobile .pagination__arrow {
-  min-width: $pagination-target-size;
-  min-height: $pagination-target-size;
-}
-
 // ---- Breakpoint: swap compact layout for the full desktop layout --------
 @media (min-width: $pagination-breakpoint) {
-  .pagination__desktop {
+  .c-pagination__desktop__list {
     display: flex;
-    align-items: center;
-    gap: $pagination-gap;
   }
 
-  .pagination__mobile {
+  .c-pagination__mobile__form {
     display: none;
   }
 }
 
 // ---- High contrast / forced-colors mode ----------------------------------
 @media (forced-colors: active) {
-  .pagination__link,
-  .pagination__arrow,
-  .pagination__ellipsis,
-  .pagination__input {
+  .c-pagination__desktop__list__item__link,
+  .c-pagination__arrow,
+  .c-pagination__desktop__list__item__ellipsis,
+  .c-pagination__mobile__form input {
     border: 1px solid CanvasText;
   }
 
-  .pagination__link--current {
+  .c-pagination__desktop__list__item__link[aria-current="page"] {
     forced-color-adjust: none;
     background-color: Highlight;
     color: HighlightText;

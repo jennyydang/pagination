@@ -10,23 +10,25 @@
   border: 0;
 }
 
-.pagination {
-  display: block;
+.c-pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 1rem;
   color: #1a1a1a;
 }
-.pagination * {
+.c-pagination * {
   box-sizing: border-box;
 }
 @media (prefers-reduced-motion: no-preference) {
-  .pagination .pagination__link,
-  .pagination .pagination__arrow,
-  .pagination .pagination__ellipsis {
+  .c-pagination .c-pagination__arrow,
+  .c-pagination .c-pagination__desktop__list__item__link,
+  .c-pagination .c-pagination__desktop__list__item__ellipsis {
     transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
   }
 }
 
-.pagination__ellipsis, .pagination__arrow, .pagination__link {
+.c-pagination__desktop__list__item__ellipsis, .c-pagination__desktop__list__item__link, .c-pagination__arrow {
   font: inherit;
   color: inherit;
   background: none;
@@ -46,28 +48,29 @@
   font-weight: 500;
   line-height: 1;
 }
-.pagination__ellipsis:hover, .pagination__arrow:hover, .pagination__link:hover {
+.c-pagination__desktop__list__item__ellipsis:hover, .c-pagination__desktop__list__item__link:hover, .c-pagination__arrow:hover {
   background-color: #f2f2f2;
 }
-.pagination__ellipsis:focus-visible, .pagination__arrow:focus-visible, .pagination__link:focus-visible {
+.c-pagination__desktop__list__item__ellipsis:focus-visible, .c-pagination__desktop__list__item__link:focus-visible, .c-pagination__arrow:focus-visible {
   outline: 3px solid #0b5fff;
   outline-offset: 2px;
 }
-.pagination__ellipsis:disabled, .pagination__arrow:disabled, .pagination__link:disabled, [aria-disabled=true].pagination__ellipsis, [aria-disabled=true].pagination__arrow, [aria-disabled=true].pagination__link {
+
+.c-pagination__arrow {
+  border: 1px solid #6b6b6b;
+  font-size: 1.25em;
+}
+.c-pagination__arrow:disabled {
   cursor: not-allowed;
   color: #9a9a9a;
   border-color: #cfcfcf;
 }
-.pagination__ellipsis:disabled:hover, .pagination__arrow:disabled:hover, .pagination__link:disabled:hover, [aria-disabled=true].pagination__ellipsis:hover, [aria-disabled=true].pagination__arrow:hover, [aria-disabled=true].pagination__link:hover {
+.c-pagination__arrow:disabled:hover {
   background-color: transparent;
 }
 
-.pagination__desktop {
+.c-pagination__desktop__list {
   display: none;
-}
-
-.pagination__list {
-  display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px;
@@ -76,59 +79,47 @@
   list-style: none;
 }
 
-.pagination__item {
+.c-pagination__desktop__list__item {
   display: flex;
 }
 
-.pagination__link {
+.c-pagination__desktop__list__item__link {
   border: 1px solid transparent;
 }
-.pagination__link--current {
+.c-pagination__desktop__list__item__link[aria-current=page] {
   background-color: #0b5fff;
   color: #ffffff;
   font-weight: 700;
 }
-.pagination__link--current:hover {
+.c-pagination__desktop__list__item__link[aria-current=page]:hover {
   background-color: #0b5fff;
 }
 
-.pagination__arrow {
-  border: 1px solid #6b6b6b;
-}
-
-.pagination__arrow-icon {
-  font-size: 1.25em;
-  line-height: 1;
-}
-
-.pagination__ellipsis {
+.c-pagination__desktop__list__item__ellipsis {
   border: 1px solid transparent;
   letter-spacing: 1px;
 }
-.pagination__ellipsis-arrow {
+.c-pagination__desktop__list__item__ellipsis svg {
+  display: none;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+.c-pagination__desktop__list__item__ellipsis:hover span, .c-pagination__desktop__list__item__ellipsis:focus-visible span {
   display: none;
 }
-.pagination__ellipsis:hover .pagination__ellipsis-dots, .pagination__ellipsis:focus-visible .pagination__ellipsis-dots {
-  display: none;
-}
-.pagination__ellipsis:hover .pagination__ellipsis-arrow, .pagination__ellipsis:focus-visible .pagination__ellipsis-arrow {
-  display: inline;
+.c-pagination__desktop__list__item__ellipsis:hover svg, .c-pagination__desktop__list__item__ellipsis:focus-visible svg {
+  display: inline-block;
 }
 
-.pagination__mobile {
+.c-pagination__mobile__form {
   display: flex;
   align-items: center;
   gap: 4px;
+  margin: 0;
 }
 
-.pagination__goto {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin: 0 2px;
-}
-
-.pagination__input {
+.c-pagination__mobile__form input {
   width: 3.5ch;
   min-height: 44px;
   padding: 0 4px;
@@ -136,64 +127,42 @@
   font: inherit;
   font-weight: 600;
   color: #1a1a1a;
-  background-color: #ffffff;
+  background-color: #fff;
   border: 1px solid #6b6b6b;
   border-radius: 6px;
   -moz-appearance: textfield;
 }
-.pagination__input::-webkit-outer-spin-button, .pagination__input::-webkit-inner-spin-button {
+.c-pagination__mobile__form input::-webkit-outer-spin-button, .c-pagination__mobile__form input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-.pagination__input:focus-visible {
+.c-pagination__mobile__form input:focus-visible {
   outline: 3px solid #0b5fff;
   outline-offset: 2px;
 }
 
-.pagination__total {
+.c-pagination__mobile__form__total {
   color: #595959;
   font-weight: 500;
   white-space: nowrap;
 }
 
-.pagination__error {
-  color: #c81e2c;
-  font-size: 0.875rem;
-}
-.pagination__error:not(:empty) {
-  position: static;
-  display: block;
-  width: auto;
-  height: auto;
-  margin: 4px 0 0;
-  padding: 0;
-  clip: auto;
-  overflow: visible;
-}
-
-.pagination__mobile .pagination__arrow {
-  min-width: 44px;
-  min-height: 44px;
-}
-
-@media (min-width: 640px) {
-  .pagination__desktop {
+@media (min-width: 800px) {
+  .c-pagination__desktop__list {
     display: flex;
-    align-items: center;
-    gap: 4px;
   }
-  .pagination__mobile {
+  .c-pagination__mobile__form {
     display: none;
   }
 }
 @media (forced-colors: active) {
-  .pagination__link,
-  .pagination__arrow,
-  .pagination__ellipsis,
-  .pagination__input {
+  .c-pagination__desktop__list__item__link,
+  .c-pagination__arrow,
+  .c-pagination__desktop__list__item__ellipsis,
+  .c-pagination__mobile__form input {
     border: 1px solid CanvasText;
   }
-  .pagination__link--current {
+  .c-pagination__desktop__list__item__link[aria-current=page] {
     forced-color-adjust: none;
     background-color: Highlight;
     color: HighlightText;

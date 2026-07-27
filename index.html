@@ -15,7 +15,6 @@
     }
     h1 { font-size: 1.5rem; }
     h2 { font-size: 1.125rem; margin-top: 2.5rem; }
-    section { margin-bottom: 1.5rem; }
     p.hint { color: #595959; font-size: 0.9rem; }
     .demo-log {
       margin-top: 0.5rem;
@@ -26,138 +25,189 @@
       min-height: 1.5em;
     }
     code { background: #f2f2f2; padding: 0.1em 0.35em; border-radius: 4px; }
+
+    /* -- Static illustrations only: NOT real .c-pagination markup, so the
+       component script never picks these up. Purely for documenting the
+       six required layouts side by side. -- */
+    .demo-mock { display: flex; align-items: center; gap: 4px; margin: 0.5rem 0 1.25rem; }
+    .demo-mock__btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px;
+      border: 1px solid #6b6b6b; font-size: 0.9rem; color: #1a1a1a;
+    }
+    .demo-mock__btn--ghost { border-color: transparent; }
+    .demo-mock__btn--current { background: #0b5fff; border-color: #0b5fff; color: #fff; font-weight: 700; }
+    .demo-mock__ellipsis { padding: 0 4px; color: #595959; }
   </style>
 </head>
 <body>
   <h1>Pagination component</h1>
   <p class="hint">
-    Resize the window (or open dev tools' device toolbar) to see the compact
-    <code>&lt; 1 / 50 &gt;</code> mobile layout below ~640px. Hover or focus an
-    ellipsis to see it swap to a jump control. Each example is a fully
-    independent, self-initializing instance.
+    The six required layouts below are static illustrations. The live demo
+    further down is the real, fully wired component — try clicking through
+    pages, hovering an ellipsis, or resizing the window below ~800px to see
+    the compact <code>&lt; 1 / 50 &gt;</code> mobile layout.
   </p>
 
-  <h2>1. First page, small total (no ellipsis needed)</h2>
-  <nav
-    class="pagination"
-    data-current-page="1"
-    data-total-pages="5"
-    data-url-pattern="?example1page={page}"
-    aria-label="Pagination, example 1"
-    data-example="1"
-  >
-    <noscript>
-      <ul class="pagination__list">
-        <li class="pagination__item"><a class="pagination__link" href="?example1page=1" aria-current="page">1</a></li>
-        <li class="pagination__item"><a class="pagination__link" href="?example1page=2">2</a></li>
-        <li class="pagination__item"><a class="pagination__link" href="?example1page=3">3</a></li>
-        <li class="pagination__item"><a class="pagination__link" href="?example1page=4">4</a></li>
-        <li class="pagination__item"><a class="pagination__link" href="?example1page=5">5</a></li>
-      </ul>
-    </noscript>
-  </nav>
+  <h2>Layout reference</h2>
 
-  <h2>2. First page, 50 total</h2>
-  <nav
-    class="pagination"
-    data-current-page="1"
-    data-total-pages="50"
-    data-url-pattern="?example2page={page}"
-    aria-label="Pagination, example 2"
-    data-example="2"
-  ></nav>
+  <p class="hint">1. First page, small total (no ellipsis needed)</p>
+  <div class="demo-mock" aria-hidden="true">
+    <span class="demo-mock__btn demo-mock__btn--ghost">‹</span>
+    <span class="demo-mock__btn demo-mock__btn--current">1</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">2</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">3</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">4</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">5</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">›</span>
+  </div>
 
-  <h2>3. Page 2 of 50</h2>
-  <nav
-    class="pagination"
-    data-current-page="2"
-    data-total-pages="50"
-    data-url-pattern="?example3page={page}"
-    aria-label="Pagination, example 3"
-    data-example="3"
-  ></nav>
+  <p class="hint">2. First page, 50 total</p>
+  <div class="demo-mock" aria-hidden="true">
+    <span class="demo-mock__btn demo-mock__btn--ghost">‹</span>
+    <span class="demo-mock__btn demo-mock__btn--current">1</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">2</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">3</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">4</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">5</span>
+    <span class="demo-mock__ellipsis">&hellip;</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">50</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">›</span>
+  </div>
 
-  <h2>4. Page 3 of 50</h2>
-  <nav
-    class="pagination"
-    data-current-page="3"
-    data-total-pages="50"
-    data-url-pattern="?example4page={page}"
-    aria-label="Pagination, example 4"
-    data-example="4"
-  ></nav>
+  <p class="hint">3. Page 2 of 50</p>
+  <div class="demo-mock" aria-hidden="true">
+    <span class="demo-mock__btn demo-mock__btn--ghost">‹</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">1</span>
+    <span class="demo-mock__btn demo-mock__btn--current">2</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">3</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">4</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">5</span>
+    <span class="demo-mock__ellipsis">&hellip;</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">50</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">›</span>
+  </div>
 
-  <h2>5. Page 4 of 50 (left ellipsis merges into page 1)</h2>
-  <nav
-    class="pagination"
-    data-current-page="4"
-    data-total-pages="50"
-    data-url-pattern="?example5page={page}"
-    aria-label="Pagination, example 5"
-    data-example="5"
-  ></nav>
+  <p class="hint">4. Page 3 of 50</p>
+  <div class="demo-mock" aria-hidden="true">
+    <span class="demo-mock__btn demo-mock__btn--ghost">‹</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">1</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">2</span>
+    <span class="demo-mock__btn demo-mock__btn--current">3</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">4</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">5</span>
+    <span class="demo-mock__ellipsis">&hellip;</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">50</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">›</span>
+  </div>
 
-  <h2>6. Page 47 of 50 (right ellipsis merges into last page)</h2>
-  <nav
-    class="pagination"
-    data-current-page="47"
-    data-total-pages="50"
-    data-url-pattern="?example6page={page}"
-    aria-label="Pagination, example 6"
-    data-example="6"
-  ></nav>
+  <p class="hint">5. Page 4 of 50</p>
+  <div class="demo-mock" aria-hidden="true">
+    <span class="demo-mock__btn demo-mock__btn--ghost">‹</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">1</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">2</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">3</span>
+    <span class="demo-mock__btn demo-mock__btn--current">4</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">5</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">6</span>
+    <span class="demo-mock__ellipsis">&hellip;</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">50</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">›</span>
+  </div>
 
-  <h2>7. AJAX mode</h2>
+  <p class="hint">6. Page 47 of 50</p>
+  <div class="demo-mock" aria-hidden="true">
+    <span class="demo-mock__btn demo-mock__btn--ghost">‹</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">1</span>
+    <span class="demo-mock__ellipsis">&hellip;</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">45</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">46</span>
+    <span class="demo-mock__btn demo-mock__btn--current">47</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">48</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">49</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">50</span>
+    <span class="demo-mock__btn demo-mock__btn--ghost">›</span>
+  </div>
+
+  <h2>Live demo</h2>
   <p class="hint">
-    This instance intercepts navigation instead of doing a full page load: it
-    calls <code>event.preventDefault()</code> on <code>pagination:navigate</code>,
-    "fetches" (simulated) new content, then calls
-    <code>pagination.update(...)</code> to re-render in place and pushes a new
-    URL with <code>history.pushState</code>.
+    This is real, server-renderable markup: the initial page list below is
+    hand-authored (no JavaScript needed for the first paint or for following
+    a page link). <code>pagination.js</code> only wires up the arrows, the
+    mobile "go to page" form, and re-renders the list on interaction. Every
+    navigation also fires a <code>pagination:navigate</code> event you can
+    intercept to fetch content over AJAX instead of letting the browser
+    follow the link.
   </p>
-  <nav
-    class="pagination"
-    data-current-page="1"
-    data-total-pages="30"
-    data-url-pattern="?ajaxpage={page}"
-    aria-label="Pagination, AJAX example"
-    data-demo="ajax"
-  ></nav>
-  <div class="demo-log" id="ajax-log" role="status">Showing page 1 of 30.</div>
+  <nav class="c-pagination" data-total-pages="50" aria-label="Pagination">
+    <button type="button" class="c-pagination__arrow c-pagination__arrow--prev" aria-label="Previous page" disabled>
+      ‹
+    </button>
+
+    <ul class="c-pagination__desktop__list">
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?page=1" aria-current="page" aria-label="Current page, Page 1">1</a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?page=2" aria-label="Go to page 2">2</a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?page=3" aria-label="Go to page 3">3</a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?page=4" aria-label="Go to page 4">4</a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?page=5" aria-label="Go to page 5">5</a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__ellipsis" href="?page=6" data-ellipsis="next" aria-label="Jump forward 5 pages">
+          <span>&hellip;</span>
+          <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transform: rotate(180deg);">
+            <path
+              d="m16.96 16.948 6.198 6.126c.52.513 1.355.513 1.874 0l.016-.015a1.323 1.323 0 0 0 0-1.883L19.81 16l5.238-5.176a1.323 1.323 0 0 0 0-1.883l-.016-.015a1.333 1.333 0 0 0-1.874 0l-6.199 6.126a1.333 1.333 0 0 0 0 1.896Zm-10 0 6.198 6.126c.52.513 1.355.513 1.874 0l.016-.015a1.323 1.323 0 0 0 0-1.883L9.81 16l5.238-5.176a1.323 1.323 0 0 0 0-1.883l-.016-.015a1.333 1.333 0 0 0-1.874 0L6.96 15.052a1.333 1.333 0 0 0 0 1.896Z"
+              fill-rule="evenodd"
+            ></path>
+          </svg>
+        </a>
+      </li>
+      <li class="c-pagination__desktop__list__item">
+        <a class="c-pagination__desktop__list__item__link" href="?page=50" aria-label="Go to page 50">50</a>
+      </li>
+    </ul>
+
+    <form class="c-pagination__mobile__form" aria-label="Go to page" novalidate>
+      <label class="u-visually-hidden" for="pagination-live-input">Page number</label>
+      <input
+        type="number"
+        id="pagination-live-input"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        min="1"
+        max="50"
+        value="1"
+        autocomplete="off"
+      />
+      <span aria-hidden="true">/</span>
+      <span class="c-pagination__mobile__form__total">50</span>
+    </form>
+
+    <button type="button" class="c-pagination__arrow c-pagination__arrow--next" aria-label="Next page">›</button>
+  </nav>
+  <div class="demo-log" id="ajax-log" role="status">Showing page 1 of 50.</div>
 
   <script>
-    // pagination.js registers itself onto a shared "Rexus" manager and uses
-    // Rexus.cuid to generate each component's id, so a real host page needs
-    // to preload both first. Here we stub them out just for the demo.
+    // pagination.js registers itself onto a shared "Rexus" manager, so a
+    // real host page needs to preload that manager first. Here we stub one
+    // out just for the demo.
     window.Rexus = window.Rexus || {};
-    window.Rexus.cuid = window.Rexus.cuid || {
-      generate: function (prefix) {
-        return (prefix || 'id') + '-' + Math.random().toString(36).slice(2, 10);
-      },
-    };
   </script>
   <script src="./src/js/pagination.js"></script>
   <script>
-    // pagination.js runs synchronously above and assigns every ".pagination"
-    // element a fresh id, so grab the AJAX example by a plain data attribute
-    // instead. Rexus.pagination.update()/.destroy() both accept either an
-    // element or an id string.
-    var ajaxRoot = document.querySelector('[data-demo="ajax"]');
     var log = document.getElementById('ajax-log');
 
-    ajaxRoot.addEventListener('pagination:navigate', function (event) {
-      event.preventDefault(); // take over navigation ourselves
-      var page = event.detail.page;
-      var url = event.detail.url;
-
-      log.textContent = 'Loading page ' + page + '…';
-
-      // Simulate an AJAX request.
-      setTimeout(function () {
-        log.textContent = 'Showing page ' + page + ' of 30.';
-        Rexus.pagination.update(ajaxRoot, { currentPage: page });
-        history.pushState({ page: page }, '', url);
-      }, 300);
+    document.querySelector('.c-pagination').addEventListener('pagination:navigate', function (event) {
+      log.textContent = 'Showing page ' + event.detail.page + ' of ' + event.detail.totalPages + '.';
     });
   </script>
 </body>
