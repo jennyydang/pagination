@@ -133,30 +133,31 @@
       return;
     }
 
-    // LINKS - real anchors, so let the browser follow the href by default
-    // (a genuine navigation). Only if a pagination:navigate listener calls
-    // preventDefault() on the dispatched event do we take over ourselves.
+    // LINKS - real anchors. In the default mode we leave them alone and let
+    // the browser follow the href (a genuine navigation). Only
+    // data-mode="ajax" makes this component handle them itself instead.
+    if (!isAjaxMode(component)) return;
+
     let href = trigger.getAttribute("href");
     let url = new URL(href, window.location.origin);
     let page = parseInt(url.searchParams.get("page"), 10);
 
     if (isNaN(page)) return;
 
+    e.preventDefault();
+
     let totalPages = getTotalPages(component);
     if (page < 1) page = 1;
     if (page > totalPages) page = totalPages;
 
-    let navigateEvent = new CustomEvent("pagination:navigate", {
-      bubbles: true,
-      cancelable: true,
-      detail: { page: page, totalPages: totalPages, url: url.toString() },
-    });
-    let shouldFollowDefault = component.dispatchEvent(navigateEvent);
+    applyNavigation(component, page, url);
+  }
 
-    if (!shouldFollowDefault) {
-      e.preventDefault();
-      applyNavigation(component, page, url);
-    }
+  // -- data-mode="ajax" opts a component into handling its own page/ellipsis
+  // -- link clicks via pushState + re-render; anything else (including no
+  // -- data-mode at all) leaves those links to their default anchor behavior
+  function isAjaxMode(component) {
+    return component.dataset.mode === "ajax";
   }
 
   function handleMobileSubmit(e) {
@@ -177,14 +178,25 @@
     }
   }
 
-  // -- applies a page change to the DOM/URL; used directly by the arrows and
-  // -- mobile form (which have no href of their own to fall back on, so they
-  // -- always self-handle), and by handleClick's LINKS branch when a
-  // -- pagination:navigate listener has opted in to intercepting the click.
+  // -- applies a page change to the DOM/URL and notifies the host page.
+  // -- Used directly by the arrows and mobile form (which have no href of
+  // -- their own to fall back on, so they always self-handle regardless of
+  // -- data-mode), and by handleClick's LINKS branch when data-mode="ajax".
   function applyNavigation(component, page, url) {
+    let totalPages = getTotalPages(component);
+
     setActivePage(component.id, page);
     window.history.pushState({}, "", url);
     render(component);
+
+    // -- let the host page know the page changed, so it can sync any of its
+    // -- own content (e.g. a results list) alongside the pagination itself
+    component.dispatchEvent(
+      new CustomEvent("pagination:navigate", {
+        bubbles: true,
+        detail: { page: page, totalPages: totalPages, url: url.toString() },
+      }),
+    );
   }
 
   function goToPage(component, page) {
@@ -201,16 +213,6 @@
     url.searchParams.set("page", page);
 
     applyNavigation(component, page, url);
-
-    // -- let the host page know the page changed, so it can fetch new
-    // -- content itself instead of a full reload (AJAX-style navigation)
-    component.dispatchEvent(
-      new CustomEvent("pagination:navigate", {
-        bubbles: true,
-        cancelable: true,
-        detail: { page: page, totalPages: totalPages, url: url.toString() },
-      }),
-    );
   }
 
   function render(component) {

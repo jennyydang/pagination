@@ -79,20 +79,20 @@
   <p class="hint">
     The six required layouts below are static illustrations. Further down
     are two examples, both the exact same <code>c-pagination</code> markup,
-    styling, and <code>pagination.js</code> — the only difference is
-    whether the host page adds extra glue code. Clicking a page number
-    always fires a cancelable <code>pagination:navigate</code> event; if
-    nothing calls <code>preventDefault()</code> on it, the anchor just
-    follows its <code>href</code> like any other link. One example is
-    labeled <span class="demo-badge demo-badge--ssr">SSR</span>: no
-    listener at all, so every page click is a genuine full-page
-    navigation and the markup is real server-renderable HTML from the
-    first byte. The other is labeled
-    <span class="demo-badge demo-badge--ajax">AJAX</span>: the same
-    component, plus a listener that calls <code>preventDefault()</code>
-    to keep a results list in sync without a reload. Arrows and the
-    mobile input have no href to fall back on, so they always navigate
-    via JavaScript in both examples. Try clicking through pages, hovering
+    styling, and <code>pagination.js</code> — the only difference is one
+    HTML attribute. By default a page number is a plain anchor:
+    <code>pagination.js</code> lets it follow its <code>href</code> like
+    any other link. Add <code>data-mode="ajax"</code> to the component and
+    it takes over those same clicks itself instead, pushing the URL and
+    re-rendering in place. One example below is labeled
+    <span class="demo-badge demo-badge--ssr">SSR</span> (no
+    <code>data-mode</code>, so every page click is a genuine full-page
+    navigation); the other is labeled
+    <span class="demo-badge demo-badge--ajax">AJAX</span>
+    (<code>data-mode="ajax"</code>, plus a <code>pagination:navigate</code>
+    listener the host page uses to keep a results list in sync). Arrows and
+    the mobile input have no href to fall back on, so they always navigate
+    via JavaScript regardless of mode. Try clicking through pages, hovering
     an ellipsis, or resizing either example below ~800px to see the
     compact <code>&lt; 1 / 50 &gt;</code> mobile layout.
   </p>
@@ -180,17 +180,17 @@
   <h2>Example <span class="demo-badge demo-badge--ssr">SSR</span></h2>
   <p class="hint">
     The exact same <code>c-pagination</code> markup, CSS, and
-    <code>pagination.js</code> as the AJAX example below — just with no
-    extra host-page JavaScript attached to it at all: no
-    <code>pagination:navigate</code> listener, nothing. View source and
-    you'll see the page list, the current page, and the disabled prev
-    arrow are all plain, real HTML from the first byte. With nothing
-    listening for <code>pagination:navigate</code>, clicking a page
-    number does the anchor's default thing — a genuine full-page
-    navigation to <code>?page=N</code> — whether or not JavaScript is
-    running (try disabling it entirely; every page link still works).
-    The prev/next arrows and mobile input still need JavaScript, since
-    they have no <code>href</code> of their own to fall back on.
+    <code>pagination.js</code> as the AJAX example below — this instance
+    just has no <code>data-mode</code> attribute, which is
+    <code>pagination.js</code>'s default. View source and you'll see the
+    page list, the current page, and the disabled prev arrow are all
+    plain, real HTML from the first byte. Without <code>data-mode="ajax"</code>,
+    clicking a page number does the anchor's default thing — a genuine
+    full-page navigation to <code>?page=N</code> — whether or not
+    JavaScript is running (try disabling it entirely; every page link
+    still works). The prev/next arrows and mobile input still need
+    JavaScript, since they have no <code>href</code> of their own to
+    fall back on.
   </p>
 
   <nav class="c-pagination" data-total-pages="50" aria-label="Pagination">
@@ -252,15 +252,13 @@
   <h2>Example <span class="demo-badge demo-badge--ajax">AJAX</span></h2>
   <p class="hint">
     The same <code>c-pagination</code> component as the SSR example above
-    (500 results, 10 per page, so 50 pages), except this page adds one
-    thing: a listener on <code>pagination:navigate</code> that calls
-    <code>event.preventDefault()</code>. Arrows and the mobile input
-    already navigate via JavaScript either way (no href to fall back
-    on), but that one call is what stops page-link and ellipsis clicks
-    from doing their default full-page navigation — <code>pagination.js</code>
-    then pushes the URL and re-renders its own page list itself, and this
-    page also re-renders the results list below to match, all with no
-    reload.
+    (500 results, 10 per page, so 50 pages), with one attribute added:
+    <code>data-mode="ajax"</code>. That's what makes <code>pagination.js</code>
+    take over page-link and ellipsis clicks itself — pushing the URL and
+    re-rendering its own page list — instead of letting them navigate
+    normally. This page also listens for the <code>pagination:navigate</code>
+    event pagination.js fires on every navigation to re-render the results
+    list below to match, all with no reload.
   </p>
 
   <ol class="demo-results" id="demo-results" aria-label="Search results" start="1">
@@ -276,7 +274,7 @@
     <li><a href="/articles/10">Result 10: an article worth reading</a></li>
   </ol>
 
-  <nav class="c-pagination" data-total-pages="50" data-demo="ajax" aria-label="Pagination">
+  <nav class="c-pagination" data-total-pages="50" data-mode="ajax" data-demo="ajax" aria-label="Pagination">
     <button type="button" class="c-pagination__arrow c-pagination__arrow--prev" aria-label="Previous page" disabled>
       ‹
     </button>
@@ -363,7 +361,6 @@
     }
 
     document.querySelector('[data-demo="ajax"]').addEventListener('pagination:navigate', function (event) {
-      event.preventDefault(); // opt in to handling this navigation ourselves instead of a real page load
       var page = event.detail.page;
       var start = (page - 1) * RESULTS_PER_PAGE + 1;
       var end = Math.min(page * RESULTS_PER_PAGE, TOTAL_RESULTS);
