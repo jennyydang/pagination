@@ -227,18 +227,39 @@
     let pagesContainer = component.getElementsByClassName(rootClass + "__desktop__list")[0];
     let pages = getPages(currentPage, totalPages);
 
-    pagesContainer.innerHTML = "";
+    // -- the two ellipsis <li>s already exist in the markup (hidden by
+    // -- default with the "u-hidden" class); they're never created here,
+    // -- only shown/hidden and repointed at whatever page they should jump to
+    let prevEllipsisLink = pagesContainer.querySelector('[data-ellipsis="prev"]');
+    let nextEllipsisLink = pagesContainer.querySelector('[data-ellipsis="next"]');
+    let prevEllipsisItem = prevEllipsisLink.closest("li");
+    let nextEllipsisItem = nextEllipsisLink.closest("li");
 
+    let showPrevEllipsis = pages.indexOf("prev") !== -1;
+    let showNextEllipsis = pages.indexOf("next") !== -1;
+
+    updateEllipsis(prevEllipsisLink, "prev", currentPage, totalPages);
+    updateEllipsis(nextEllipsisLink, "next", currentPage, totalPages);
+
+    prevEllipsisItem.classList.toggle("u-hidden", !showPrevEllipsis);
+    nextEllipsisItem.classList.toggle("u-hidden", !showNextEllipsis);
+
+    // -- drop last render's page-number links; the two ellipsis <li>s are
+    // -- left alone since they don't carry this class
+    let oldPageItems = pagesContainer.getElementsByClassName(rootClass + "__desktop__list__item--page");
+    while (oldPageItems.length) {
+      oldPageItems[0].remove();
+    }
+
+    // -- rebuild in order. appendChild() on a node already in the document
+    // -- just relocates it, so the "prev"/"next" markers move the existing
+    // -- ellipsis <li>s into place instead of creating new ones
     for (let i = 0; i < pages.length; i++) {
       let item = pages[i];
 
-      if (item === "prev") {
-        pagesContainer.appendChild(createEllipsis(currentPage, totalPages, "prev"));
-      } else if (item === "next") {
-        pagesContainer.appendChild(createEllipsis(currentPage, totalPages, "next"));
-      } else {
-        pagesContainer.appendChild(createPage(item, currentPage));
-      }
+      if (item === "prev") pagesContainer.appendChild(prevEllipsisItem);
+      else if (item === "next") pagesContainer.appendChild(nextEllipsisItem);
+      else pagesContainer.appendChild(createPage(item, currentPage));
     }
 
     updateMobileMax(component);
@@ -325,7 +346,9 @@
     return li;
   }
 
-  function createEllipsis(currentPage, totalPages, direction) {
+  // -- points an already-existing ellipsis link at whichever page it should
+  // -- jump to; never creates anything, just updates the href/aria-label
+  function updateEllipsis(link, direction, currentPage, totalPages) {
     let targetPage;
 
     if (direction === "prev") {
@@ -339,18 +362,8 @@
       }
     }
 
-    let li = cloneTemplate(rootClass + "-ellipsis-template");
-    let link = li.querySelector("a");
-
     link.href = "?page=" + targetPage;
-    link.dataset.ellipsis = direction;
     link.setAttribute("aria-label", direction === "prev" ? "Jump backward 5 pages" : "Jump forward 5 pages");
-
-    if (direction === "next") {
-      link.querySelector("svg").style.transform = "rotate(180deg)";
-    }
-
-    return li;
   }
 
   function updateArrows(component) {

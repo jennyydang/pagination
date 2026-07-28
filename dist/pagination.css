@@ -10,6 +10,10 @@
   border: 0;
 }
 
+.u-hidden {
+  display: none !important;
+}
+
 .c-pagination {
   display: flex;
   align-items: center;

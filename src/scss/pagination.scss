@@ -54,6 +54,14 @@ $pagination-target-size-desktop: 40px !default;
   border: 0;
 }
 
+// ---- Fully hidden utility (not present in the a11y tree either) ---------
+// !important is intentional: a utility class exists specifically to win
+// regardless of other rules' specificity or source order (e.g. it's applied
+// to an element that also has display:flex from .c-pagination__desktop__list__item).
+.u-hidden {
+  display: none !important;
+}
+
 // ---- Block -----------------------------------------------------------
 .c-pagination {
   display: flex;
