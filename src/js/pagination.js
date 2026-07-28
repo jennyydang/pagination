@@ -227,21 +227,19 @@
     let pagesContainer = component.getElementsByClassName(rootClass + "__desktop__list")[0];
     let pages = getPages(currentPage, totalPages);
 
-    let html = "";
+    pagesContainer.innerHTML = "";
 
     for (let i = 0; i < pages.length; i++) {
       let item = pages[i];
 
       if (item === "prev") {
-        html += createEllipsis(currentPage, totalPages, "prev");
+        pagesContainer.appendChild(createEllipsis(currentPage, totalPages, "prev"));
       } else if (item === "next") {
-        html += createEllipsis(currentPage, totalPages, "next");
+        pagesContainer.appendChild(createEllipsis(currentPage, totalPages, "next"));
       } else {
-        html += createPage(item, currentPage);
+        pagesContainer.appendChild(createPage(item, currentPage));
       }
     }
-
-    pagesContainer.innerHTML = html;
 
     updateMobileMax(component);
     updateArrows(component);
@@ -302,21 +300,29 @@
     return pages;
   }
 
+  // -- clones a <template> from the page and hands back a detached node
+  function cloneTemplate(templateId) {
+    let template = document.getElementById(templateId);
+    return template.content.firstElementChild.cloneNode(true);
+  }
+
   function createPage(page, currentPage) {
     let current = page === currentPage;
 
-    return `
-      <li class="c-pagination__desktop__list__item">
-        <a
-          class="c-pagination__desktop__list__item__link"
-          href="?page=${page}"
-          ${current ? 'aria-current="page"' : ""}
-          aria-label="${current ? `Current page, Page ${page}` : `Go to page ${page}`}"
-        >
-          ${page}
-        </a>
-      </li>
-    `;
+    let li = cloneTemplate(rootClass + "-page-template");
+    let link = li.querySelector("a");
+
+    link.href = "?page=" + page;
+    link.textContent = page;
+
+    if (current) {
+      link.setAttribute("aria-current", "page");
+      link.setAttribute("aria-label", "Current page, Page " + page);
+    } else {
+      link.setAttribute("aria-label", "Go to page " + page);
+    }
+
+    return li;
   }
 
   function createEllipsis(currentPage, totalPages, direction) {
@@ -333,26 +339,18 @@
       }
     }
 
-    return `
-      <li class="c-pagination__desktop__list__item">
-        <a
-          class="c-pagination__desktop__list__item__ellipsis"
-          href="?page=${targetPage}"
-          data-ellipsis="${direction}"
-          aria-label="${direction === "prev" ? "Jump backward 5 pages" : "Jump forward 5 pages"}"
-        >
-          <span>&hellip;</span>
+    let li = cloneTemplate(rootClass + "-ellipsis-template");
+    let link = li.querySelector("a");
 
-          <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
-            ${direction === "next" ? 'style="transform: rotate(180deg);"' : ""}>
-            <path
-              d="m16.96 16.948 6.198 6.126c.52.513 1.355.513 1.874 0l.016-.015a1.323 1.323 0 0 0 0-1.883L19.81 16l5.238-5.176a1.323 1.323 0 0 0 0-1.883l-.016-.015a1.333 1.333 0 0 0-1.874 0l-6.199 6.126a1.333 1.333 0 0 0 0 1.896Zm-10 0 6.198 6.126c.52.513 1.355.513 1.874 0l.016-.015a1.323 1.323 0 0 0 0-1.883L9.81 16l5.238-5.176a1.323 1.323 0 0 0 0-1.883l-.016-.015a1.333 1.333 0 0 0-1.874 0L6.96 15.052a1.333 1.333 0 0 0 0 1.896Z"
-              fill-rule="evenodd"
-            ></path>
-          </svg>
-        </a>
-      </li>
-    `;
+    link.href = "?page=" + targetPage;
+    link.dataset.ellipsis = direction;
+    link.setAttribute("aria-label", direction === "prev" ? "Jump backward 5 pages" : "Jump forward 5 pages");
+
+    if (direction === "next") {
+      link.querySelector("svg").style.transform = "rotate(180deg)";
+    }
+
+    return li;
   }
 
   function updateArrows(component) {

@@ -333,6 +333,35 @@
   </nav>
   <div class="demo-log" id="ajax-log" role="status">Showing results 1&ndash;10 of 500.</div>
 
+  <!--
+    pagination.js clones these on every re-render instead of building the
+    markup as JS strings, so a page number or the ellipsis (including its
+    SVG) only has one canonical, editable copy - here. The very first
+    ellipsis/page link in each example's initial SSR markup above is still
+    real, literal HTML (a <template>'s content is inert and never part of
+    the initial paint); these are only used for links pagination.js itself
+    creates from that point on.
+  -->
+  <template id="c-pagination-page-template">
+    <li class="c-pagination__desktop__list__item">
+      <a class="c-pagination__desktop__list__item__link"></a>
+    </li>
+  </template>
+
+  <template id="c-pagination-ellipsis-template">
+    <li class="c-pagination__desktop__list__item">
+      <a class="c-pagination__desktop__list__item__ellipsis">
+        <span>&hellip;</span>
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path
+            d="m16.96 16.948 6.198 6.126c.52.513 1.355.513 1.874 0l.016-.015a1.323 1.323 0 0 0 0-1.883L19.81 16l5.238-5.176a1.323 1.323 0 0 0 0-1.883l-.016-.015a1.333 1.333 0 0 0-1.874 0l-6.199 6.126a1.333 1.333 0 0 0 0 1.896Zm-10 0 6.198 6.126c.52.513 1.355.513 1.874 0l.016-.015a1.323 1.323 0 0 0 0-1.883L9.81 16l5.238-5.176a1.323 1.323 0 0 0 0-1.883l-.016-.015a1.333 1.333 0 0 0-1.874 0L6.96 15.052a1.333 1.333 0 0 0 0 1.896Z"
+            fill-rule="evenodd"
+          ></path>
+        </svg>
+      </a>
+    </li>
+  </template>
+
   <script>
     // pagination.js registers itself onto a shared "Rexus" manager, so a
     // real host page needs to preload that manager first. Here we stub one
