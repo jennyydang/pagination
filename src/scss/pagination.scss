@@ -54,14 +54,6 @@ $pagination-target-size-desktop: 40px !default;
   border: 0;
 }
 
-// ---- Fully hidden utility (not present in the a11y tree either) ---------
-// !important is intentional: a utility class exists specifically to win
-// regardless of other rules' specificity or source order (e.g. it's applied
-// to an element that also has display:flex from .c-pagination__desktop__list__item).
-.u-hidden {
-  display: none !important;
-}
-
 // ---- Block -----------------------------------------------------------
 .c-pagination {
   display: flex;
@@ -138,6 +130,14 @@ $pagination-target-size-desktop: 40px !default;
 
 .c-pagination__desktop__list__item {
   display: flex;
+
+  // The [hidden] attribute is how the two ellipsis <li>s get hidden - a
+  // native, zero-CSS-required mechanism (no utility class name to match).
+  // Author styles always beat the browser's own [hidden] { display: none }
+  // default, so this has to be repeated explicitly to actually win.
+  &[hidden] {
+    display: none;
+  }
 }
 
 .c-pagination__desktop__list__item__link {

@@ -199,15 +199,15 @@
     </button>
 
     <ul class="c-pagination__desktop__list">
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=1" aria-current="page" aria-label="Current page, Page 1">1</a>
       </li>
       <!--
         Both ellipsis <li>s live here permanently, not created in JS.
         This one (prev) is hidden by default since page 1 never needs it;
-        pagination.js only ever toggles "u-hidden" and repoints the href.
+        pagination.js only ever toggles the "hidden" attribute and repoints the href.
       -->
-      <li class="c-pagination__desktop__list__item u-hidden">
+      <li class="c-pagination__desktop__list__item" hidden>
         <a class="c-pagination__desktop__list__item__ellipsis" href="?page=1" data-ellipsis="prev" aria-label="Jump backward 5 pages">
           <span>&hellip;</span>
           <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -218,21 +218,21 @@
           </svg>
         </a>
       </li>
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=2" aria-label="Go to page 2">2</a>
       </li>
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=3" aria-label="Go to page 3">3</a>
       </li>
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=4" aria-label="Go to page 4">4</a>
       </li>
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=5" aria-label="Go to page 5">5</a>
       </li>
       <!--
         This one (next) IS needed on page 1 of 50, so it's real, visible
-        markup from the first byte - no "u-hidden", nothing to toggle yet.
+        markup from the first byte - no "hidden" attribute, nothing to toggle yet.
       -->
       <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__ellipsis" href="?page=6" data-ellipsis="next" aria-label="Jump forward 5 pages">
@@ -245,7 +245,7 @@
           </svg>
         </a>
       </li>
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=50" aria-label="Go to page 50">50</a>
       </li>
     </ul>
@@ -301,15 +301,15 @@
     </button>
 
     <ul class="c-pagination__desktop__list">
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=1" aria-current="page" aria-label="Current page, Page 1">1</a>
       </li>
       <!--
         Both ellipsis <li>s live here permanently, not created in JS.
         This one (prev) is hidden by default since page 1 never needs it;
-        pagination.js only ever toggles "u-hidden" and repoints the href.
+        pagination.js only ever toggles the "hidden" attribute and repoints the href.
       -->
-      <li class="c-pagination__desktop__list__item u-hidden">
+      <li class="c-pagination__desktop__list__item" hidden>
         <a class="c-pagination__desktop__list__item__ellipsis" href="?page=1" data-ellipsis="prev" aria-label="Jump backward 5 pages">
           <span>&hellip;</span>
           <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -320,21 +320,21 @@
           </svg>
         </a>
       </li>
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=2" aria-label="Go to page 2">2</a>
       </li>
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=3" aria-label="Go to page 3">3</a>
       </li>
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=4" aria-label="Go to page 4">4</a>
       </li>
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=5" aria-label="Go to page 5">5</a>
       </li>
       <!--
         This one (next) IS needed on page 1 of 50, so it's real, visible
-        markup from the first byte - no "u-hidden", nothing to toggle yet.
+        markup from the first byte - no "hidden" attribute, nothing to toggle yet.
       -->
       <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__ellipsis" href="?page=6" data-ellipsis="next" aria-label="Jump forward 5 pages">
@@ -347,7 +347,7 @@
           </svg>
         </a>
       </li>
-      <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
+      <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=50" aria-label="Go to page 50">50</a>
       </li>
     </ul>
@@ -372,18 +372,6 @@
     <button type="button" class="c-pagination__arrow c-pagination__arrow--next" aria-label="Next page">›</button>
   </nav>
   <div class="demo-log" id="ajax-log" role="status">Showing results 1&ndash;10 of 500.</div>
-
-  <!--
-    pagination.js clones this on every re-render instead of building a page
-    link as a JS string. The ellipsis is NOT here - both its <li>s are real,
-    permanent markup inside each example above (see the "u-hidden" one),
-    just shown/hidden and repointed at whatever page they should jump to.
-  -->
-  <template id="c-pagination-page-template">
-    <li class="c-pagination__desktop__list__item c-pagination__desktop__list__item--page">
-      <a class="c-pagination__desktop__list__item__link"></a>
-    </li>
-  </template>
 
   <script>
     // pagination.js registers itself onto a shared "Rexus" manager, so a

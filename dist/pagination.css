@@ -10,10 +10,6 @@
   border: 0;
 }
 
-.u-hidden {
-  display: none !important;
-}
-
 .c-pagination {
   display: flex;
   align-items: center;
@@ -85,6 +81,9 @@
 
 .c-pagination__desktop__list__item {
   display: flex;
+}
+.c-pagination__desktop__list__item[hidden] {
+  display: none;
 }
 
 .c-pagination__desktop__list__item__link {

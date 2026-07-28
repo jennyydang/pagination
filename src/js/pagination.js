@@ -227,9 +227,10 @@
     let pagesContainer = component.getElementsByClassName(rootClass + "__desktop__list")[0];
     let pages = getPages(currentPage, totalPages);
 
-    // -- the two ellipsis <li>s already exist in the markup (hidden by
-    // -- default with the "u-hidden" class); they're never created here,
-    // -- only shown/hidden and repointed at whatever page they should jump to
+    // -- the two ellipsis <li>s already exist in the markup; they're never
+    // -- created here, only shown/hidden (via the native "hidden" attribute,
+    // -- so no particular CSS class name is required of the host page) and
+    // -- repointed at whatever page they should jump to
     let prevEllipsisLink = pagesContainer.querySelector('[data-ellipsis="prev"]');
     let nextEllipsisLink = pagesContainer.querySelector('[data-ellipsis="next"]');
     let prevEllipsisItem = prevEllipsisLink.closest("li");
@@ -241,15 +242,20 @@
     updateEllipsis(prevEllipsisLink, "prev", currentPage, totalPages);
     updateEllipsis(nextEllipsisLink, "next", currentPage, totalPages);
 
-    prevEllipsisItem.classList.toggle("u-hidden", !showPrevEllipsis);
-    nextEllipsisItem.classList.toggle("u-hidden", !showNextEllipsis);
+    prevEllipsisItem.hidden = !showPrevEllipsis;
+    nextEllipsisItem.hidden = !showNextEllipsis;
 
-    // -- drop last render's page-number links; the two ellipsis <li>s are
-    // -- left alone since they don't carry this class
-    let oldPageItems = pagesContainer.getElementsByClassName(rootClass + "__desktop__list__item--page");
-    while (oldPageItems.length) {
-      oldPageItems[0].remove();
-    }
+    // -- drop every existing child except the two ellipsis <li>s (including
+    // -- whatever page-number links were already sitting in the initial
+    // -- server-rendered markup - they're not marked with any special class,
+    // -- so identifying them by exclusion is the only way that's reliable
+    // -- regardless of how the host page authored its markup)
+    let children = Array.prototype.slice.call(pagesContainer.children);
+    children.forEach(function (child) {
+      if (child !== prevEllipsisItem && child !== nextEllipsisItem) {
+        child.remove();
+      }
+    });
 
     // -- rebuild in order. appendChild() on a node already in the document
     // -- just relocates it, so the "prev"/"next" markers move the existing
@@ -321,18 +327,18 @@
     return pages;
   }
 
-  // -- clones a <template> from the page and hands back a detached node
-  function cloneTemplate(templateId) {
-    let template = document.getElementById(templateId);
-    return template.content.firstElementChild.cloneNode(true);
-  }
-
+  // -- builds a page-number <li> directly; deliberately not dependent on
+  // -- anything else existing on the host page (no <template>, no specific
+  // -- utility class name) so this component only ever requires the
+  // -- .c-pagination markup itself
   function createPage(page, currentPage) {
     let current = page === currentPage;
 
-    let li = cloneTemplate(rootClass + "-page-template");
-    let link = li.querySelector("a");
+    let li = document.createElement("li");
+    li.className = rootClass + "__desktop__list__item";
 
+    let link = document.createElement("a");
+    link.className = rootClass + "__desktop__list__item__link";
     link.href = "?page=" + page;
     link.textContent = page;
 
@@ -343,6 +349,7 @@
       link.setAttribute("aria-label", "Go to page " + page);
     }
 
+    li.appendChild(link);
     return li;
   }
 
