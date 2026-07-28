@@ -161,8 +161,6 @@
   }
 
   function handleMobileSubmit(e) {
-    e.preventDefault();
-
     let form = e.currentTarget;
     let component = form.closest("." + rootClass);
 
@@ -171,11 +169,19 @@
 
     let value = parseInt(input.value, 10);
 
-    if (!isNaN(value) && value >= 1 && value <= totalPages) {
-      goToPage(component, value);
-    } else {
+    // -- an out-of-range value never navigates anywhere, regardless of mode
+    if (isNaN(value) || value < 1 || value > totalPages) {
+      e.preventDefault();
       input.value = getActivePage(component.id);
+      return;
     }
+
+    // -- default mode: the form is a real method="get" submission to
+    // -- ?page=N (same as a page link), so just let it happen
+    if (!isAjaxMode(component)) return;
+
+    e.preventDefault();
+    goToPage(component, value);
   }
 
   // -- applies a page change to the DOM/URL and notifies the host page.

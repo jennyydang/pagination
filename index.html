@@ -230,11 +230,12 @@
       </li>
     </ul>
 
-    <form class="c-pagination__mobile__form" aria-label="Go to page" novalidate>
+    <form class="c-pagination__mobile__form" aria-label="Go to page" method="get" novalidate>
       <label class="u-visually-hidden" for="pagination-ssr-input">Page number</label>
       <input
         type="number"
         id="pagination-ssr-input"
+        name="page"
         inputmode="numeric"
         pattern="[0-9]*"
         min="1"
@@ -311,11 +312,12 @@
       </li>
     </ul>
 
-    <form class="c-pagination__mobile__form" aria-label="Go to page" novalidate>
+    <form class="c-pagination__mobile__form" aria-label="Go to page" method="get" novalidate>
       <label class="u-visually-hidden" for="pagination-live-input">Page number</label>
       <input
         type="number"
         id="pagination-live-input"
+        name="page"
         inputmode="numeric"
         pattern="[0-9]*"
         min="1"
