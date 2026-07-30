@@ -139,7 +139,11 @@
     if (!isAjaxMode(component)) return;
 
     let href = trigger.getAttribute("href");
-    let url = new URL(href, window.location.origin);
+    // -- resolve against the full current URL (path included), not just the
+    // -- origin, so this ends up identical to what following the href as a
+    // -- real link would have gone to (matches how goToPage() below, used
+    // -- by the arrows and mobile form, already resolves its URL)
+    let url = new URL(href, window.location.href);
     let page = parseInt(url.searchParams.get("page"), 10);
 
     if (isNaN(page)) return;
