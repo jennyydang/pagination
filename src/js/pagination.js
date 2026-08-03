@@ -165,6 +165,11 @@
   }
 
   function handleMobileSubmit(e) {
+    // -- always take over: a native GET form submission only serializes its
+    // -- own fields, so it would silently drop any other query parameters
+    // -- already on the URL (e.g. ?sort=price&page=3 -> ?page=5)
+    e.preventDefault();
+
     let form = e.currentTarget;
     let component = form.closest("." + rootClass);
 
@@ -175,17 +180,20 @@
 
     // -- an out-of-range value never navigates anywhere, regardless of mode
     if (isNaN(value) || value < 1 || value > totalPages) {
-      e.preventDefault();
       input.value = getActivePage(component.id);
       return;
     }
 
-    // -- default mode: the form is a real method="get" submission to
-    // -- ?page=N (same as a page link), so just let it happen
-    if (!isAjaxMode(component)) return;
+    if (isAjaxMode(component)) {
+      goToPage(component, value);
+      return;
+    }
 
-    e.preventDefault();
-    goToPage(component, value);
+    // -- default mode is still a genuine navigation, just built from the
+    // -- current URL so any other query parameters survive alongside "page"
+    let url = new URL(window.location.href);
+    url.searchParams.set("page", value);
+    window.location.assign(url);
   }
 
   // -- applies a page change to the DOM/URL and notifies the host page.
