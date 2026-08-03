@@ -184,22 +184,12 @@
       return;
     }
 
-    if (isAjaxMode(component)) {
-      goToPage(component, value);
-      return;
-    }
-
-    // -- default mode is still a genuine navigation, just built from the
-    // -- current URL so any other query parameters survive alongside "page"
-    let url = new URL(window.location.href);
-    url.searchParams.set("page", value);
-    window.location.assign(url);
+    goToPage(component, value);
   }
 
-  // -- applies a page change to the DOM/URL and notifies the host page.
-  // -- Used directly by the arrows and mobile form (which have no href of
-  // -- their own to fall back on, so they always self-handle regardless of
-  // -- data-mode), and by handleClick's LINKS branch when data-mode="ajax".
+  // -- applies a page change via pushState + re-render and notifies the host
+  // -- page. Only ever reached under data-mode="ajax" - by goToPage() (the
+  // -- arrows, the mobile form) or handleClick's LINKS branch directly.
   function applyNavigation(component, page, url) {
     let totalPages = getTotalPages(component);
 
@@ -217,6 +207,11 @@
     );
   }
 
+  // -- used by the arrows and the mobile form, neither of which has a real
+  // -- href/action of their own to fall back on, so this is what gives them
+  // -- the same default-mode-vs-ajax-mode behavior a link click gets: a
+  // -- genuine navigation by default, or a pushState + re-render under
+  // -- data-mode="ajax"
   function goToPage(component, page) {
     let totalPages = getTotalPages(component);
 
@@ -229,6 +224,11 @@
     let url = new URL(window.location.href);
 
     url.searchParams.set("page", page);
+
+    if (!isAjaxMode(component)) {
+      window.location.assign(url);
+      return;
+    }
 
     applyNavigation(component, page, url);
   }
