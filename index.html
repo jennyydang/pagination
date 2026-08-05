@@ -263,6 +263,7 @@
         id="pagination-ssr-input"
         name="page"
         inputmode="numeric"
+        enterkeyhint="go"
         pattern="[0-9]*"
         min="1"
         max="50"
@@ -271,6 +272,15 @@
       />
       <span aria-hidden="true">/</span>
       <span class="c-pagination__mobile__form__total">50</span>
+      <!--
+        Not every mobile virtual keyboard offers a return/"Go" key for a
+        numeric input - some just show digits, some show "Done" which only
+        dismisses the keyboard without submitting. A real submit button is
+        the only tap target guaranteed to work everywhere; enterkeyhint="go"
+        above is just a progressive enhancement for keyboards that do
+        support it.
+      -->
+      <button type="submit" class="c-pagination__mobile__form__submit" aria-label="Go to page">Go</button>
     </form>
 
     <button type="button" class="c-pagination__arrow c-pagination__arrow--next" aria-label="Next page">›</button>
@@ -371,6 +381,7 @@
         id="pagination-live-input"
         name="page"
         inputmode="numeric"
+        enterkeyhint="go"
         pattern="[0-9]*"
         min="1"
         max="50"
@@ -379,6 +390,7 @@
       />
       <span aria-hidden="true">/</span>
       <span class="c-pagination__mobile__form__total">50</span>
+      <button type="submit" class="c-pagination__mobile__form__submit" aria-label="Go to page">Go</button>
     </form>
 
     <button type="button" class="c-pagination__arrow c-pagination__arrow--next" aria-label="Next page">›</button>

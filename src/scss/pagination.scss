@@ -221,6 +221,33 @@ $pagination-target-size-desktop: 40px !default;
   white-space: nowrap;
 }
 
+// Explicit submit control - not every mobile virtual keyboard offers a
+// return/"Go" key for a numeric input (some show only digits; some show
+// "Done", which just dismisses the keyboard without submitting), so this
+// button is the one tap target guaranteed to submit the form everywhere.
+.c-pagination__mobile__form__submit {
+  @include pagination-reset-button;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: $pagination-target-size;
+  min-height: $pagination-target-size;
+  padding: 0 12px;
+  margin-left: 2px;
+  border: 1px solid $pagination-color-border;
+  border-radius: $pagination-radius;
+  font-weight: 600;
+  color: $pagination-color-text;
+
+  &:hover {
+    background-color: $pagination-color-bg-hover;
+  }
+
+  &:focus-visible {
+    @include pagination-focus-ring;
+  }
+}
+
 // ---- Breakpoint: swap compact layout for the full desktop layout --------
 @media (min-width: $pagination-breakpoint) {
   .c-pagination__desktop__list {
@@ -237,7 +264,8 @@ $pagination-target-size-desktop: 40px !default;
   .c-pagination__desktop__list__item__link,
   .c-pagination__arrow,
   .c-pagination__desktop__list__item__ellipsis,
-  .c-pagination__mobile__form input {
+  .c-pagination__mobile__form input,
+  .c-pagination__mobile__form__submit {
     border: 1px solid CanvasText;
   }
 

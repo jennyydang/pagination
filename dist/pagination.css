@@ -150,6 +150,33 @@
   white-space: nowrap;
 }
 
+.c-pagination__mobile__form__submit {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  margin-left: 2px;
+  border: 1px solid #6b6b6b;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+.c-pagination__mobile__form__submit:hover {
+  background-color: #f2f2f2;
+}
+.c-pagination__mobile__form__submit:focus-visible {
+  outline: 3px solid #0b5fff;
+  outline-offset: 2px;
+}
+
 @media (min-width: 800px) {
   .c-pagination__desktop__list {
     display: flex;
@@ -162,7 +189,8 @@
   .c-pagination__desktop__list__item__link,
   .c-pagination__arrow,
   .c-pagination__desktop__list__item__ellipsis,
-  .c-pagination__mobile__form input {
+  .c-pagination__mobile__form input,
+  .c-pagination__mobile__form__submit {
     border: 1px solid CanvasText;
   }
   .c-pagination__desktop__list__item__link[aria-current=page] {
