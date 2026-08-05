@@ -344,6 +344,17 @@
     return pages;
   }
 
+  // -- builds an href for a given page from the CURRENT full URL, only
+  // -- touching "page" - so every link/ellipsis this component renders
+  // -- keeps whatever else is already on the URL (filters, search, sort)
+  // -- and a plain click in the default (non-ajax) mode, which just lets
+  // -- the browser follow the href as-is, doesn't lose any of it
+  function buildPageHref(page) {
+    let url = new URL(window.location.href);
+    url.searchParams.set("page", page);
+    return url.search;
+  }
+
   // -- builds a page-number <li> directly; deliberately not dependent on
   // -- anything else existing on the host page (no <template>, no specific
   // -- utility class name) so this component only ever requires the
@@ -356,7 +367,7 @@
 
     let link = document.createElement("a");
     link.className = rootClass + "__desktop__list__item__link";
-    link.href = "?page=" + page;
+    link.href = buildPageHref(page);
     link.textContent = page;
 
     if (current) {
@@ -386,7 +397,7 @@
       }
     }
 
-    link.href = "?page=" + targetPage;
+    link.href = buildPageHref(targetPage);
     link.setAttribute("aria-label", direction === "prev" ? "Jump backward 5 pages" : "Jump forward 5 pages");
   }
 
