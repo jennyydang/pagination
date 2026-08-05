@@ -9,7 +9,7 @@
   var components;
 
   var activeMap = new Map();
-
+  const screenMD = 800;
   // -- Verify if manager exists
   /*
         The manager is intended to be as a service to the other modules
@@ -68,18 +68,18 @@
       markupPage = parseInt(currentLink.textContent.trim(), 10);
     }
 
-    // -- the URL is the real source of truth for which page is active (a
-    // -- real backend would have already rendered markupPage to match it);
-    // -- fall back to what the markup says if there's no ?page= to read.
-    // -- Trust a valid urlPage on its own - only clamp it against totalPages
-    // -- when totalPages is ALSO a real number, so a missing/bad
-    // -- data-total-pages can't silently make this fall back to markupPage
-    // -- even though the URL clearly says otherwise (urlPage <= NaN is
-    // -- always false, which used to reject urlPage outright here)
+    //check for current page in URL
     let totalPages = getTotalPages(component);
     let urlPage = getPageFromUrl();
     let currentPage = markupPage;
 
+    // -- trust a valid urlPage on its own; only clamp it against totalPages
+    // -- when totalPages is ALSO a real number. Comparing against NaN is
+    // -- always false, so requiring "urlPage <= totalPages" up front used to
+    // -- silently reject a perfectly valid urlPage whenever totalPages
+    // -- couldn't be read (e.g. a missing/invalid data-total-pages) -
+    // -- currentPage would fall back to markupPage even though the URL
+    // -- unambiguously said otherwise.
     if (!isNaN(urlPage)) {
       currentPage = urlPage;
       if (currentPage < 1) currentPage = 1;
@@ -98,8 +98,7 @@
     updateArrows(component);
     updateMobileInput(component);
 
-    // -- only re-render if the URL disagreed with the markup - leave a
-    // -- correctly server-rendered page completely untouched by JS
+    // -- only re-render if the URL didnt match up
     if (currentPage !== markupPage) {
       render(component);
     }
@@ -125,7 +124,6 @@
     // PREVIOUS
     if (trigger.classList.contains(rootClass + "__arrow--prev")) {
       if (trigger.disabled) return;
-      // let currentPage = getActivePage(component.id);
       let currentPage = getCurrentPage(component);
       goToPage(component, currentPage - 1);
       return;
@@ -134,21 +132,21 @@
     // NEXT
     if (trigger.classList.contains(rootClass + "__arrow--next")) {
       if (trigger.disabled) return;
-      // let currentPage = getActivePage(component.id);
       let currentPage = getCurrentPage(component);
       goToPage(component, currentPage + 1);
       return;
     }
 
-    // LINKS - real anchors. In the default mode we leave them alone and let
+    // In the default mode we leave them alone and let
     // the browser follow the href (a genuine navigation). Only
     // data-mode="ajax" makes this component handle them itself instead.
     if (!isAjaxMode(component)) return;
 
     let href = trigger.getAttribute("href");
     // -- only used to read which page this link points at; a page/ellipsis
-    // -- link's own href is just "?page=N" (it has no idea about any other
-    // -- query params - filters, search, sort - already on the page)
+    // -- link's own href only ever encodes "page" (see buildPageHref), so it
+    // -- can't be used as the actual navigation URL without losing whatever
+    // -- else (filters, search, sort) is already on the current URL
     let linkUrl = new URL(href, window.location.href);
     let page = parseInt(linkUrl.searchParams.get("page"), 10);
 
@@ -162,24 +160,19 @@
 
     // -- build the actual navigation URL from the current full URL instead,
     // -- only touching "page", so anything else already there survives
-    // -- (same technique goToPage() uses for the arrows and mobile form)
     let url = new URL(window.location.href);
     url.searchParams.set("page", page);
 
     applyNavigation(component, page, url);
   }
 
-  // -- data-mode="ajax" opts a component into handling its own page/ellipsis
-  // -- link clicks via pushState + re-render; anything else (including no
-  // -- data-mode at all) leaves those links to their default anchor behavior
+  //default mode: follow default links behavior
+  //ajax mode: navigate internally
   function isAjaxMode(component) {
     return component.dataset.mode === "ajax";
   }
 
   function handleMobileSubmit(e) {
-    // -- always take over: a native GET form submission only serializes its
-    // -- own fields, so it would silently drop any other query parameters
-    // -- already on the URL (e.g. ?sort=price&page=3 -> ?page=5)
     e.preventDefault();
 
     let form = e.currentTarget;
@@ -190,7 +183,6 @@
 
     let value = parseInt(input.value, 10);
 
-    // -- an out-of-range value never navigates anywhere, regardless of mode
     if (isNaN(value) || value < 1 || value > totalPages) {
       input.value = getActivePage(component.id);
       return;
@@ -199,31 +191,18 @@
     goToPage(component, value);
   }
 
-  // -- applies a page change via pushState + re-render and notifies the host
-  // -- page. Only ever reached under data-mode="ajax" - by goToPage() (the
-  // -- arrows, the mobile form) or handleClick's LINKS branch directly.
+  // -- applies a page change to the DOM/URL and notifies the host page.
+  // -- Used directly by the arrows and mobile form (which have no href of
+  // -- their own to fall back on, so they always self-handle regardless of
+  // -- data-mode), and by handleClick's LINKS branch when data-mode="ajax".
   function applyNavigation(component, page, url) {
     let totalPages = getTotalPages(component);
 
     setActivePage(component.id, page);
     window.history.pushState({}, "", url);
     render(component);
-
-    // -- let the host page know the page changed, so it can sync any of its
-    // -- own content (e.g. a results list) alongside the pagination itself
-    component.dispatchEvent(
-      new CustomEvent("pagination:navigate", {
-        bubbles: true,
-        detail: { page: page, totalPages: totalPages, url: url.toString() },
-      }),
-    );
   }
 
-  // -- used by the arrows and the mobile form, neither of which has a real
-  // -- href/action of their own to fall back on, so this is what gives them
-  // -- the same default-mode-vs-ajax-mode behavior a link click gets: a
-  // -- genuine navigation by default, or a pushState + re-render under
-  // -- data-mode="ajax"
   function goToPage(component, page) {
     let totalPages = getTotalPages(component);
 
@@ -232,7 +211,6 @@
 
     // UPDATE URL
     // ?page=#
-
     let url = new URL(window.location.href);
 
     url.searchParams.set("page", page);
@@ -251,46 +229,21 @@
     let pagesContainer = component.getElementsByClassName(rootClass + "__desktop__list")[0];
     let pages = getPages(currentPage, totalPages);
 
-    // -- the two ellipsis <li>s already exist in the markup; they're never
-    // -- created here, only shown/hidden (via the native "hidden" attribute,
-    // -- so no particular CSS class name is required of the host page) and
-    // -- repointed at whatever page they should jump to
-    let prevEllipsisLink = pagesContainer.querySelector('[data-ellipsis="prev"]');
-    let nextEllipsisLink = pagesContainer.querySelector('[data-ellipsis="next"]');
-    let prevEllipsisItem = prevEllipsisLink.closest("li");
-    let nextEllipsisItem = nextEllipsisLink.closest("li");
+    let html = "";
 
-    let showPrevEllipsis = pages.indexOf("prev") !== -1;
-    let showNextEllipsis = pages.indexOf("next") !== -1;
-
-    updateEllipsis(prevEllipsisLink, "prev", currentPage, totalPages);
-    updateEllipsis(nextEllipsisLink, "next", currentPage, totalPages);
-
-    prevEllipsisItem.hidden = !showPrevEllipsis;
-    nextEllipsisItem.hidden = !showNextEllipsis;
-
-    // -- drop every existing child except the two ellipsis <li>s (including
-    // -- whatever page-number links were already sitting in the initial
-    // -- server-rendered markup - they're not marked with any special class,
-    // -- so identifying them by exclusion is the only way that's reliable
-    // -- regardless of how the host page authored its markup)
-    let children = Array.prototype.slice.call(pagesContainer.children);
-    children.forEach(function (child) {
-      if (child !== prevEllipsisItem && child !== nextEllipsisItem) {
-        child.remove();
-      }
-    });
-
-    // -- rebuild in order. appendChild() on a node already in the document
-    // -- just relocates it, so the "prev"/"next" markers move the existing
-    // -- ellipsis <li>s into place instead of creating new ones
     for (let i = 0; i < pages.length; i++) {
       let item = pages[i];
 
-      if (item === "prev") pagesContainer.appendChild(prevEllipsisItem);
-      else if (item === "next") pagesContainer.appendChild(nextEllipsisItem);
-      else pagesContainer.appendChild(createPage(item, currentPage));
+      if (item === "prev") {
+        html += createEllipsis(currentPage, totalPages, "prev", pagesContainer.dataset.prevlabel);
+      } else if (item === "next") {
+        html += createEllipsis(currentPage, totalPages, "next", pagesContainer.dataset.next);
+      } else {
+        html += createPage(item, currentPage, pagesContainer.dataset.currentlabel, pagesContainer.dataset.golabel);
+      }
     }
+
+    pagesContainer.innerHTML = html;
 
     updateMobileMax(component);
     updateArrows(component);
@@ -353,7 +306,7 @@
 
   // -- builds an href for a given page from the CURRENT full URL, only
   // -- touching "page" - so every link/ellipsis this component renders
-  // -- keeps whatever else is already on the URL (filters, search, sort)
+  // -- keeps whatever else is already on the URL (filters, search, sort),
   // -- and a plain click in the default (non-ajax) mode, which just lets
   // -- the browser follow the href as-is, doesn't lose any of it
   function buildPageHref(page) {
@@ -362,35 +315,24 @@
     return url.search;
   }
 
-  // -- builds a page-number <li> directly; deliberately not dependent on
-  // -- anything else existing on the host page (no <template>, no specific
-  // -- utility class name) so this component only ever requires the
-  // -- .c-pagination markup itself
-  function createPage(page, currentPage) {
+  function createPage(page, currentPage, currentLabel, goLabel) {
     let current = page === currentPage;
 
-    let li = document.createElement("li");
-    li.className = rootClass + "__desktop__list__item";
-
-    let link = document.createElement("a");
-    link.className = rootClass + "__desktop__list__item__link";
-    link.href = buildPageHref(page);
-    link.textContent = page;
-
-    if (current) {
-      link.setAttribute("aria-current", "page");
-      link.setAttribute("aria-label", "Current page, Page " + page);
-    } else {
-      link.setAttribute("aria-label", "Go to page " + page);
-    }
-
-    li.appendChild(link);
-    return li;
+    return `
+      <li class="c-pagination__desktop__list__item">
+        <a
+          class="c-pagination__desktop__list__item__link"
+          href="${buildPageHref(page)}"
+          ${current ? 'aria-current="page"' : ""}
+          aria-label="${current ? `${currentLabel}${page}` : `${goLabel}${page}`}"
+        >
+          ${page}
+        </a>
+      </li>
+    `;
   }
 
-  // -- points an already-existing ellipsis link at whichever page it should
-  // -- jump to; never creates anything, just updates the href/aria-label
-  function updateEllipsis(link, direction, currentPage, totalPages) {
+  function createEllipsis(currentPage, totalPages, direction, label) {
     let targetPage;
 
     if (direction === "prev") {
@@ -404,8 +346,26 @@
       }
     }
 
-    link.href = buildPageHref(targetPage);
-    link.setAttribute("aria-label", direction === "prev" ? "Jump backward 5 pages" : "Jump forward 5 pages");
+    return `
+      <li class="c-pagination__desktop__list__item">
+        <a
+          class="c-pagination__desktop__list__item__ellipsis"
+          href="${buildPageHref(targetPage)}"
+          data-ellipsis="${direction}"
+          aria-label="${label}"
+        >
+          <span>&hellip;</span>
+
+          <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+            ${direction === "next" ? 'style="transform: rotate(180deg);"' : ""}>
+            <path
+              d="m16.96 16.948 6.198 6.126c.52.513 1.355.513 1.874 0l.016-.015a1.323 1.323 0 0 0 0-1.883L19.81 16l5.238-5.176a1.323 1.323 0 0 0 0-1.883l-.016-.015a1.333 1.333 0 0 0-1.874 0l-6.199 6.126a1.333 1.333 0 0 0 0 1.896Zm-10 0 6.198 6.126c.52.513 1.355.513 1.874 0l.016-.015a1.323 1.323 0 0 0 0-1.883L9.81 16l5.238-5.176a1.323 1.323 0 0 0 0-1.883l-.016-.015a1.333 1.333 0 0 0-1.874 0L6.96 15.052a1.333 1.333 0 0 0 0 1.896Z"
+              fill-rule="evenodd"
+            ></path>
+          </svg>
+        </a>
+      </li>
+    `;
   }
 
   function updateArrows(component) {
@@ -443,7 +403,7 @@
 
     if (isNaN(totalPages) || totalPages < 1) {
       console.error(
-        rootClass + ': missing or invalid data-total-pages on this component - defaulting to 1',
+        rootClass + ": missing or invalid data-total-pages on this component - defaulting to 1",
         component,
       );
       return 1;
@@ -473,7 +433,7 @@
     // MOBILE INPUT EXISTS
     // USE INPUT VALUE
 
-    if (input && window.innerWidth <= 800) {
+    if (input && window.innerWidth <= screenMD) {
       let value = parseInt(input.value, 10);
 
       if (!isNaN(value)) {
@@ -482,7 +442,6 @@
     }
 
     // FALLBACK TO ACTIVE MAP
-
     return getActivePage(component.id);
   }
 

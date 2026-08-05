@@ -198,7 +198,13 @@
       ‹
     </button>
 
-    <ul class="c-pagination__desktop__list">
+    <ul
+      class="c-pagination__desktop__list"
+      data-currentlabel="Current page, Page "
+      data-golabel="Go to page "
+      data-prevlabel="Jump backward 5 pages"
+      data-next="Jump forward 5 pages"
+    >
       <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=1" aria-current="page" aria-label="Current page, Page 1">1</a>
       </li>
@@ -300,7 +306,13 @@
       ‹
     </button>
 
-    <ul class="c-pagination__desktop__list">
+    <ul
+      class="c-pagination__desktop__list"
+      data-currentlabel="Current page, Page "
+      data-golabel="Go to page "
+      data-prevlabel="Jump backward 5 pages"
+      data-next="Jump forward 5 pages"
+    >
       <li class="c-pagination__desktop__list__item">
         <a class="c-pagination__desktop__list__item__link" href="?page=1" aria-current="page" aria-label="Current page, Page 1">1</a>
       </li>
@@ -402,14 +414,27 @@
       resultsList.setAttribute('start', String(start));
     }
 
-    document.querySelector('[data-demo="ajax"]').addEventListener('pagination:navigate', function (event) {
-      var page = event.detail.page;
+    // pagination.js doesn't dispatch a "pagination:navigate" event, so the
+    // results list is kept in sync by reading the URL directly, after
+    // whatever interaction pagination.js already handled synchronously
+    // (click -> pushState + render, or a mobile-form submit -> the same).
+    function syncResultsFromUrl() {
+      var page = parseInt(new URLSearchParams(window.location.search).get('page'), 10);
+      if (isNaN(page) || page < 1) page = 1;
+
       var start = (page - 1) * RESULTS_PER_PAGE + 1;
       var end = Math.min(page * RESULTS_PER_PAGE, TOTAL_RESULTS);
 
       renderResults(page);
       log.textContent = 'Showing results ' + start + '–' + end + ' of ' + TOTAL_RESULTS + '.';
-    });
+    }
+
+    var ajaxNav = document.querySelector('[data-demo="ajax"]');
+    // Registered after pagination.js's own listeners, so by the time these
+    // run the URL/DOM pagination.js owns has already been updated.
+    ajaxNav.addEventListener('click', syncResultsFromUrl);
+    ajaxNav.addEventListener('submit', syncResultsFromUrl);
+    window.addEventListener('popstate', syncResultsFromUrl);
   </script>
 </body>
 </html>
