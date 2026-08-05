@@ -269,7 +269,9 @@
         max="50"
         value="1"
         autocomplete="off"
+        aria-describedby="pagination-ssr-hint"
       />
+      <span id="pagination-ssr-hint" class="u-visually-hidden">Leaving this field, or pressing Go, jumps to that page.</span>
       <span aria-hidden="true">/</span>
       <span class="c-pagination__mobile__form__total">50</span>
       <!--
@@ -387,7 +389,9 @@
         max="50"
         value="1"
         autocomplete="off"
+        aria-describedby="pagination-live-hint"
       />
+      <span id="pagination-live-hint" class="u-visually-hidden">Leaving this field, or pressing Go, jumps to that page.</span>
       <span aria-hidden="true">/</span>
       <span class="c-pagination__mobile__form__total">50</span>
       <button type="submit" class="c-pagination__mobile__form__submit" aria-label="Go to page">Go</button>
@@ -446,6 +450,9 @@
     // run the URL/DOM pagination.js owns has already been updated.
     ajaxNav.addEventListener('click', syncResultsFromUrl);
     ajaxNav.addEventListener('submit', syncResultsFromUrl);
+    // "blur" itself doesn't bubble, but "focusout" does - this is what
+    // catches the mobile-input auto-navigate-on-blur path.
+    ajaxNav.addEventListener('focusout', syncResultsFromUrl);
     window.addEventListener('popstate', syncResultsFromUrl);
   </script>
 </body>

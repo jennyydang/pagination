@@ -92,6 +92,17 @@
     let mobileForm = component.getElementsByClassName(rootClass + "__mobile__form")[0];
     if (mobileForm) {
       mobileForm.addEventListener("submit", handleMobileSubmit);
+
+      // -- not every mobile virtual keyboard offers a return/"Go" key for a
+      // -- numeric input, and some only offer "Done", which just dismisses
+      // -- the keyboard without submitting. Dismissing the keyboard by any
+      // -- means (tapping outside, tabbing away, the OS's own "Done") blurs
+      // -- the input, so that's what drives navigation on those devices -
+      // -- the visible Go button and Enter key still work as before too.
+      let mobileInput = mobileForm.getElementsByTagName("input")[0];
+      if (mobileInput) {
+        mobileInput.addEventListener("blur", handleMobileBlur);
+      }
     }
 
     updateMobileMax(component);
@@ -177,16 +188,35 @@
 
     let form = e.currentTarget;
     let component = form.closest("." + rootClass);
-
     let input = form.getElementsByTagName("input")[0];
-    let totalPages = getTotalPages(component);
 
+    submitMobileValue(component, input);
+  }
+
+  // -- fires when the mobile "go to page" input is blurred - i.e. the
+  // -- keyboard was dismissed by any means, Go key, "Done", or tapping
+  // -- elsewhere - not only when the form's own submit event fires (Enter
+  // -- or the visible Go button). Shares validation with handleMobileSubmit
+  // -- so both paths behave identically, and no-ops if the value already
+  // -- matches the active page so a Go-button tap right after a blur
+  // -- doesn't push a second, redundant history entry.
+  function handleMobileBlur(e) {
+    let input = e.currentTarget;
+    let component = input.closest("." + rootClass);
+
+    submitMobileValue(component, input);
+  }
+
+  function submitMobileValue(component, input) {
+    let totalPages = getTotalPages(component);
     let value = parseInt(input.value, 10);
 
     if (isNaN(value) || value < 1 || value > totalPages) {
       input.value = getActivePage(component.id);
       return;
     }
+
+    if (value === getActivePage(component.id)) return;
 
     goToPage(component, value);
   }
