@@ -70,13 +70,20 @@
 
     // -- the URL is the real source of truth for which page is active (a
     // -- real backend would have already rendered markupPage to match it);
-    // -- fall back to what the markup says if there's no ?page= to read
+    // -- fall back to what the markup says if there's no ?page= to read.
+    // -- Trust a valid urlPage on its own - only clamp it against totalPages
+    // -- when totalPages is ALSO a real number, so a missing/bad
+    // -- data-total-pages can't silently make this fall back to markupPage
+    // -- even though the URL clearly says otherwise (urlPage <= NaN is
+    // -- always false, which used to reject urlPage outright here)
     let totalPages = getTotalPages(component);
     let urlPage = getPageFromUrl();
     let currentPage = markupPage;
 
-    if (!isNaN(urlPage) && urlPage >= 1 && urlPage <= totalPages) {
+    if (!isNaN(urlPage)) {
       currentPage = urlPage;
+      if (currentPage < 1) currentPage = 1;
+      if (!isNaN(totalPages) && currentPage > totalPages) currentPage = totalPages;
     }
 
     setActivePage(component.id, currentPage);
@@ -425,8 +432,24 @@
     if (max) max.textContent = getTotalPages(component);
   }
 
+  // -- never returns NaN: every other function trusts this value in
+  // -- comparisons (getPages(), the initialize()/handleBrowser() URL sync,
+  // -- the arrow/mobile-input clamping), and a NaN here would silently
+  // -- corrupt all of them (e.g. "n <= NaN" is always false), so a missing
+  // -- or invalid data-total-pages degrades to 1 instead, with a clear
+  // -- console error pointing at the actual misconfiguration
   function getTotalPages(component) {
-    return parseInt(component.dataset.totalPages, 10);
+    let totalPages = parseInt(component.dataset.totalPages, 10);
+
+    if (isNaN(totalPages) || totalPages < 1) {
+      console.error(
+        rootClass + ': missing or invalid data-total-pages on this component - defaulting to 1',
+        component,
+      );
+      return 1;
+    }
+
+    return totalPages;
   }
 
   function setActivePage(id, page) {
