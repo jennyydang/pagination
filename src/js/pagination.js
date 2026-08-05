@@ -139,12 +139,11 @@
     if (!isAjaxMode(component)) return;
 
     let href = trigger.getAttribute("href");
-    // -- resolve against the full current URL (path included), not just the
-    // -- origin, so this ends up identical to what following the href as a
-    // -- real link would have gone to (matches how goToPage() below, used
-    // -- by the arrows and mobile form, already resolves its URL)
-    let url = new URL(href, window.location.href);
-    let page = parseInt(url.searchParams.get("page"), 10);
+    // -- only used to read which page this link points at; a page/ellipsis
+    // -- link's own href is just "?page=N" (it has no idea about any other
+    // -- query params - filters, search, sort - already on the page)
+    let linkUrl = new URL(href, window.location.href);
+    let page = parseInt(linkUrl.searchParams.get("page"), 10);
 
     if (isNaN(page)) return;
 
@@ -153,6 +152,12 @@
     let totalPages = getTotalPages(component);
     if (page < 1) page = 1;
     if (page > totalPages) page = totalPages;
+
+    // -- build the actual navigation URL from the current full URL instead,
+    // -- only touching "page", so anything else already there survives
+    // -- (same technique goToPage() uses for the arrows and mobile form)
+    let url = new URL(window.location.href);
+    url.searchParams.set("page", page);
 
     applyNavigation(component, page, url);
   }
